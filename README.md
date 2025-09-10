@@ -1,0 +1,1 @@
+# Fundraiser Thermometer System Professional fundraising display system for live events ## Features - Real-time donation tracking - Custom thermometer display  ## Usage Visit the live demo: https://yourusername.github.io/fundraiser-thermometer Created by Eyad Alrabbat

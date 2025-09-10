@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraiser Control Panel</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            flex: 1;
+            color: #333;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 180px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .total {
+            font-weight: bold;
+            color: #667eea;
+            margin-left: 15px;
+            min-width: 100px;
+            text-align: right;
+            font-size: 1.1em;
+        }
+
+        #totalCollected {
+            font-size: 20px;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .donation-section {
+            grid-column: span 2;
+        }
+
+        .panels-section {
+            grid-column: span 2;
+        }
+
+        .panel-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel-editor {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .panel-title {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .panel-items {
+            display: none;
+        }
+
+        .panel-items.active {
+            display: block;
+        }
+
+        .panel-item {
+            display: flex;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .panel-item input {
+            flex: 1;
+            width: auto;
+        }
+
+        .add-item-btn {
+            background: #27ae60;
+            margin: 10px 0 0 0;
+        }
+
+        .remove-item-btn {
+            background: #e74c3c;
+            margin-left: 5px;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-bar h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            background: #f39c12;
+            margin: 0;
+        }
+
+        .preset-btn {
+            background: #f39c12;
+            margin: 0 5px 5px 0;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .preset-btn:hover {
+            background: #e67e22;
+        }
+
+        input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        input[type="range"] {
+            width: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .donation-section, .panels-section {
+                grid-column: span 1;
+            }
+            
+            .panel-config {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Fundraiser Control Panel</h1>
+            <p>Manage your thermometer display in real-time</p>
+        </div>
+
+        <div class="grid">
+            <!-- Configuration Section -->
+            <div class="section">
+                <div class="section-title">⚙️ Basic Configuration</div>
+                <div class="input-row">
+                    <label>Fundraiser Title:</label>
+                    <input type="text" id="titleInput" placeholder="Enter title...">
+                    <button onclick="setTitle()">Set Title</button>
+                </div>
+                <div class="input-row">
+                    <label>Goal Amount:</label>
+                    <input type="number" id="goalInput" min="0" step="0.01" placeholder="50000">
+                    <button onclick="setGoal()">Set Goal</button>
+                </div>
+            </div>
+
+            <!-- Totals Section -->
+            <div class="section">
+                <div class="section-title">📊 Current Status</div>
+                <div class="input-row">
+                    <label>Total Collected:</label>
+                    <span id="totalCollected" class="total">$0.00</span>
+                </div>
+                <div class="input-row">
+                    <label>Override Total:</label>
+                    <input type="number" id="overrideTotal" step="0.01" placeholder="0.00">
+                    <button onclick="applyOverride()">Apply</button>
+                </div>
+            </div>
+
+            <!-- Donation Inputs Section -->
+            <div class="section donation-section">
+                <div class="section-title">💰 Donation Inputs</div>
+                <div class="input-row">
+                    <label>Cash:</label>
+                    <input type="number" id="cashInput" step="0.01" placeholder="0.00">
+                    <span id="cashTotal" class="total">$0.00</span>
+                </div>
+                <div class="input-row">
+                    <label>Check:</label>
+                    <input type="number" id="checkInput" step="0.01" placeholder="0.00">
+                    <span id="checkTotal" class="total">$0.00</span>
+                </div>
+                <div class="input-row">
+                    <label>Pledges:</label>
+                    <input type="number" id="pledgesInput" step="0.01" placeholder="0.00">
+                    <span id="pledgesTotal" class="total">$0.00</span>
+                </div>
+                <div class="input-row">
+                    <label>Square:</label>
+                    <input type="number" id="squareInput" step="0.01" placeholder="0.00">
+                    <span id="squareTotal" class="total">$0.00</span>
+                </div>
+                <div class="input-row">
+                    <label>Website:</label>
+                    <input type="number" id="websiteInput" step="0.01" placeholder="0.00">
+                    <span id="websiteTotal" class="total">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Info Panels Configuration -->
+            <div class="section panels-section">
+                <div class="section-title">📋 Information Panels</div>
+                <p style="color: #666; margin-bottom: 20px;">Configure the information panels that appear beside your thermometer.</p>
+                
+                <div class="panel-config">
+                    <!-- Left Panel -->
+                    <div class="panel-editor">
+                        <div class="panel-header">
+                            <span class="panel-title">Left Panel</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="leftPanelToggle" onchange="togglePanel('left')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="panel-items" id="leftPanelItems">
+                            <div class="input-row">
+                                <label>Panel Title:</label>
+                                <input type="text" id="leftPanelTitle" placeholder="Panel Title" oninput="savePanelData('left')">
+                            </div>
+                            <div id="leftPanelContent">
+                                <!-- Dynamic items will be added here -->
+                            </div>
+                            <button class="add-item-btn" onclick="addPanelItem('left')">+ Add Item</button>
+                        </div>
+                    </div>
+
+                    <!-- Right Panel -->
+                    <div class="panel-editor">
+                        <div class="panel-header">
+                            <span class="panel-title">Right Panel</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="rightPanelToggle" onchange="togglePanel('right')">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="panel-items" id="rightPanelItems">
+                            <div class="input-row">
+                                <label>Panel Title:</label>
+                                <input type="text" id="rightPanelTitle" placeholder="Panel Title" oninput="savePanelData('right')">
+                            </div>
+                            <div id="rightPanelContent">
+                                <!-- Dynamic items will be added here -->
+                            </div>
+                            <button class="add-item-btn" onclick="addPanelItem('right')">+ Add Item</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customization Section -->
+            <div class="section panels-section">
+                <div class="section-title">🎨 Appearance Customization</div>
+                <p style="color: #666; margin-bottom: 20px;">Customize the look and feel of your thermometer display.</p>
+                
+                <div class="panel-config">
+                    <!-- Colors -->
+                    <div class="panel-editor">
+                        <div class="panel-header">
+                            <span class="panel-title">Colors</span>
+                        </div>
+                        
+                        <div class="input-row">
+                            <label>Background Color:</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="color" id="backgroundColorPicker" value="#01243c">
+                                <input type="text" id="backgroundColorHex" placeholder="#01243c" style="width: 100px;" maxlength="7">
+                            </div>
+                        </div>
+                        
+                        <div class="input-row">
+                            <label>Thermometer Fill:</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="color" id="fillColorPicker" value="#8ddbf5">
+                                <input type="text" id="fillColorHex" placeholder="#8ddbf5" style="width: 100px;" maxlength="7">
+                            </div>
+                        </div>
+                        
+                        <div class="input-row">
+                            <label>Title Color:</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="color" id="titleColorPicker" value="#efab3a">
+                                <input type="text" id="titleColorHex" placeholder="#efab3a" style="width: 100px;" maxlength="7">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Typography & Position -->
+                    <div class="panel-editor">
+                        <div class="panel-header">
+                            <span class="panel-title">Typography & Position</span>
+                        </div>
+                        
+                        <div class="input-row">
+                            <label>Title Font:</label>
+                            <select id="titleFontSelect" style="width: 200px;">
+                                <option value="Dancing Script">Dancing Script (Default)</option>
+                                <option value="Anton">Anton (Bold)</option>
+                                <option value="Moontime">Moontime (Decorative)</option>
+                                <option value="Georgia">Georgia (Classic)</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Arial">Arial (Clean)</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Impact">Impact (Bold)</option>
+                                <option value="Trebuchet MS">Trebuchet MS</option>
+                                <option value="Verdana">Verdana</option>
+                                <option value="Comic Sans MS">Comic Sans MS (Fun)</option>
+                                <option value="Courier New">Courier New (Mono)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-row">
+                            <label>Title Size:</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="range" id="titleSizeSlider" min="20" max="80" value="45" oninput="updateSliderValue('titleSize')">
+                                <span id="titleSizeValue" style="font-weight: bold; width: 40px;">45px</span>
+                            </div>
+                        </div>
+
+                        <div class="input-row">
+                            <label>Title Distance:</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="range" id="titleDistanceSlider" min="20" max="200" value="80" oninput="updateSliderValue('titleDistance')">
+                                <span id="titleDistanceValue" style="font-weight: bold; width: 50px;">80px</span>
+                            </div>
+                        </div>
+
+                        <div class="input-row">
+                            <label style="margin-bottom: 0;">Quick Presets:</label>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+                            <button class="preset-btn" onclick="applyPreset('modern')">Modern</button>
+                            <button class="preset-btn" onclick="applyPreset('classic')">Classic</button>
+                            <button class="preset-btn" onclick="applyPreset('fun')">Fun</button>
+                            <button class="preset-btn" onclick="applyPreset('corporate')">Corporate</button>
+                            <button class="preset-btn" onclick="applyPreset('reset')">Reset</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <button style="background: #27ae60; margin: 0;" onclick="applyCustomization()">Apply All Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <h3>Quick Actions</h3>
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="clearAllData()">🗑️ Clear All Data</button>
+                <button class="quick-btn" onclick="exportData()">📤 Export Data</button>
+                <button class="quick-btn" onclick="importData()">📥 Import Data</button>
+                <button class="quick-btn" onclick="window.open('ThermDisplayReal.html', '_blank')">🌡️ Open Display</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let categories = ['cash', 'check', 'pledges', 'square', 'website'];
+        let totals = {};
+        let panelItemCount = { left: 0, right: 0 };
+
+        // Format number as currency
+        function formatCurrency(number) {
+            return '$' + number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Update total display
+        function updateTotal() {
+            let total = Object.values(totals).reduce((a, b) => a + b, 0);
+            let storedOverride = parseFloat(localStorage.getItem('fundraiserTotal'));
+            
+            // If there's an override, use it; otherwise calculate from categories
+            if (storedOverride !== null && !isNaN(storedOverride)) {
+                document.getElementById('totalCollected').textContent = formatCurrency(storedOverride);
+            } else {
+                document.getElementById('totalCollected').textContent = formatCurrency(total);
+                localStorage.setItem('fundraiserTotal', total);
+            }
+        }
+
+        // Basic configuration functions
+        function setTitle() {
+            let title = document.getElementById('titleInput').value.trim();
+            if (title) {
+                localStorage.setItem('fundraiserTitle', title);
+                document.getElementById('titleInput').value = '';
+                alert('Title updated!');
+            }
+        }
+
+        function setGoal() {
+            let goal = parseFloat(document.getElementById('goalInput').value) || 0;
+            if (goal > 0) {
+                localStorage.setItem('fundraiserGoal', goal);
+                document.getElementById('goalInput').value = '';
+                alert('Goal updated!');
+            }
+        }
+
+        function applyOverride() {
+            let override = parseFloat(document.getElementById('overrideTotal').value);
+            if (!isNaN(override)) {
+                localStorage.setItem('fundraiserTotal', override);
+                document.getElementById('totalCollected').textContent = formatCurrency(override);
+                document.getElementById('overrideTotal').value = '';
+                alert('Total overridden to ' + formatCurrency(override) + '!');
+            }
+        }
+
+        // Panel management functions
+        function togglePanel(side) {
+            const isChecked = document.getElementById(`${side}PanelToggle`).checked;
+            const panelItems = document.getElementById(`${side}PanelItems`);
+            
+            if (isChecked) {
+                panelItems.classList.add('active');
+            } else {
+                panelItems.classList.remove('active');
+            }
+            savePanelData(side);
+        }
+
+        function addPanelItem(side) {
+            const count = ++panelItemCount[side];
+            const itemHtml = `
+                <div class="panel-item" data-item="${count}">
+                    <input type="text" placeholder="Label" class="item-label" oninput="savePanelData('${side}')">
+                    <input type="text" placeholder="Value" class="item-value" oninput="savePanelData('${side}')">
+                    <button class="remove-item-btn" onclick="removePanelItem('${side}', ${count})">×</button>
+                </div>
+            `;
+            document.getElementById(`${side}PanelContent`).insertAdjacentHTML('beforeend', itemHtml);
+        }
+
+        function removePanelItem(side, itemId) {
+            const item = document.querySelector(`#${side}PanelContent .panel-item[data-item="${itemId}"]`);
+            if (item) {
+                item.remove();
+                savePanelData(side);
+            }
+        }
+
+        function savePanelData(side) {
+            const isActive = document.getElementById(`${side}PanelToggle`).checked;
+            const title = document.getElementById(`${side}PanelTitle`).value;
+            const items = [];
+            
+            document.querySelectorAll(`#${side}PanelContent .panel-item`).forEach(item => {
+                const label = item.querySelector('.item-label').value;
+                const value = item.querySelector('.item-value').value;
+                if (label && value) {
+                    items.push({ label, value });
+                }
+            });
+
+            const panelData = { active: isActive, title, items };
+            localStorage.setItem(`${side}Panel`, JSON.stringify(panelData));
+        }
+
+        function loadPanelData() {
+            ['left', 'right'].forEach(side => {
+                const data = localStorage.getItem(`${side}Panel`);
+                if (data) {
+                    const panelData = JSON.parse(data);
+                    document.getElementById(`${side}PanelToggle`).checked = panelData.active;
+                    document.getElementById(`${side}PanelTitle`).value = panelData.title || '';
+                    
+                    if (panelData.active) {
+                        document.getElementById(`${side}PanelItems`).classList.add('active');
+                    }
+                    
+                    panelData.items.forEach(item => {
+                        addPanelItem(side);
+                        const items = document.querySelectorAll(`#${side}PanelContent .panel-item`);
+                        const lastItem = items[items.length - 1];
+                        lastItem.querySelector('.item-label').value = item.label;
+                        lastItem.querySelector('.item-value').value = item.value;
+                    });
+                }
+            });
+        }
+
+        // Customization functions
+        function updateSliderValue(type) {
+            const slider = document.getElementById(`${type}Slider`);
+            const display = document.getElementById(`${type}Value`);
+            display.textContent = slider.value + 'px';
+        }
+
+        function syncColorPickers() {
+            // Background color sync
+            document.getElementById('backgroundColorPicker').addEventListener('input', function() {
+                document.getElementById('backgroundColorHex').value = this.value;
+            });
+            
+            document.getElementById('backgroundColorHex').addEventListener('input', function() {
+                const hex = this.value;
+                if (hex.match(/^#[0-9A-F]{6}$/i)) {
+                    document.getElementById('backgroundColorPicker').value = hex;
+                }
+            });
+            
+            // Fill color sync
+            document.getElementById('fillColorPicker').addEventListener('input', function() {
+                document.getElementById('fillColorHex').value = this.value;
+            });
+            
+            document.getElementById('fillColorHex').addEventListener('input', function() {
+                const hex = this.value;
+                if (hex.match(/^#[0-9A-F]{6}$/i)) {
+                    document.getElementById('fillColorPicker').value = hex;
+                }
+            });
+            
+            // Title color sync
+            document.getElementById('titleColorPicker').addEventListener('input', function() {
+                document.getElementById('titleColorHex').value = this.value;
+            });
+            
+            document.getElementById('titleColorHex').addEventListener('input', function() {
+                const hex = this.value;
+                if (hex.match(/^#[0-9A-F]{6}$/i)) {
+                    document.getElementById('titleColorPicker').value = hex;
+                }
+            });
+        }
+
+        function applyCustomization() {
+            const customization = {
+                backgroundColor: document.getElementById('backgroundColorPicker').value,
+                fillColor: document.getElementById('fillColorPicker').value,
+                titleColor: document.getElementById('titleColorPicker').value,
+                titleFont: document.getElementById('titleFontSelect').value,
+                titleSize: document.getElementById('titleSizeSlider').value,
+                titleDistance: document.getElementById('titleDistanceSlider').value
+            };
+            
+            localStorage.setItem('thermometerCustomization', JSON.stringify(customization));
+            alert('Customization applied! Changes will appear on the thermometer display.');
+        }
+
+        function loadCustomization() {
+            const saved = localStorage.getItem('thermometerCustomization');
+            if (saved) {
+                const customization = JSON.parse(saved);
+                document.getElementById('backgroundColorPicker').value = customization.backgroundColor || '#01243c';
+                document.getElementById('backgroundColorHex').value = customization.backgroundColor || '#01243c';
+                document.getElementById('fillColorPicker').value = customization.fillColor || '#8ddbf5';
+                document.getElementById('fillColorHex').value = customization.fillColor || '#8ddbf5';
+                document.getElementById('titleColorPicker').value = customization.titleColor || '#efab3a';
+                document.getElementById('titleColorHex').value = customization.titleColor || '#efab3a';
+                document.getElementById('titleFontSelect').value = customization.titleFont || 'Dancing Script';
+                document.getElementById('titleSizeSlider').value = customization.titleSize || 45;
+                document.getElementById('titleSizeValue').textContent = (customization.titleSize || 45) + 'px';
+                document.getElementById('titleDistanceSlider').value = customization.titleDistance || 80;
+                document.getElementById('titleDistanceValue').textContent = (customization.titleDistance || 80) + 'px';
+            }
+        }
+
+        function applyPreset(preset) {
+            let settings = {};
+            
+            switch(preset) {
+                case 'modern':
+                    settings = {
+                        backgroundColor: '#1a1a2e',
+                        fillColor: '#00d4ff',
+                        titleColor: '#ffffff',
+                        titleFont: 'Arial',
+                        titleSize: 48,
+                        titleDistance: 80
+                    };
+                    break;
+                case 'classic':
+                    settings = {
+                        backgroundColor: '#2c3e50',
+                        fillColor: '#3498db',
+                        titleColor: '#f39c12',
+                        titleFont: 'Georgia',
+                        titleSize: 42,
+                        titleDistance: 80
+                    };
+                    break;
+                case 'fun':
+                    settings = {
+                        backgroundColor: '#8e44ad',
+                        fillColor: '#f1c40f',
+                        titleColor: '#e74c3c',
+                        titleFont: 'Comic Sans MS',
+                        titleSize: 50,
+                        titleDistance: 80
+                    };
+                    break;
+                case 'corporate':
+                    settings = {
+                        backgroundColor: '#34495e',
+                        fillColor: '#16a085',
+                        titleColor: '#ecf0f1',
+                        titleFont: 'Helvetica',
+                        titleSize: 40,
+                        titleDistance: 80
+                    };
+                    break;
+                case 'reset':
+                    settings = {
+                        backgroundColor: '#01243c',
+                        fillColor: '#8ddbf5',
+                        titleColor: '#efab3a',
+                        titleFont: 'Dancing Script',
+                        titleSize: 45,
+                        titleDistance: 80
+                    };
+                    break;
+            }
+            
+            // Apply to form
+            document.getElementById('backgroundColorPicker').value = settings.backgroundColor;
+            document.getElementById('backgroundColorHex').value = settings.backgroundColor;
+            document.getElementById('fillColorPicker').value = settings.fillColor;
+            document.getElementById('fillColorHex').value = settings.fillColor;
+            document.getElementById('titleColorPicker').value = settings.titleColor;
+            document.getElementById('titleColorHex').value = settings.titleColor;
+            document.getElementById('titleFontSelect').value = settings.titleFont;
+            document.getElementById('titleSizeSlider').value = settings.titleSize;
+            document.getElementById('titleSizeValue').textContent = settings.titleSize + 'px';
+            document.getElementById('titleDistanceSlider').value = settings.titleDistance;
+            document.getElementById('titleDistanceValue').textContent = settings.titleDistance + 'px';
+            
+            // Auto-apply
+            applyCustomization();
+        }
+
+        // Quick actions
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function exportData() {
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                data[key] = localStorage.getItem(key);
+            }
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fundraiser-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        Object.keys(data).forEach(key => {
+                            localStorage.setItem(key, data[key]);
+                        });
+                        location.reload();
+                    } catch (error) {
+                        alert('Error importing data. Please check the file format.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize donation inputs
+            categories.forEach(category => {
+                totals[category] = parseFloat(localStorage.getItem(`${category}Total`)) || 0;
+                document.getElementById(`${category}Total`).textContent = formatCurrency(totals[category]);
+                
+                document.getElementById(`${category}Input`).addEventListener('change', function() {
+                    let value = parseFloat(this.value);
+                    if (!isNaN(value) && value !== 0) {
+                        totals[category] += value;
+                        document.getElementById(`${category}Total`).textContent = formatCurrency(totals[category]);
+                        localStorage.setItem(`${category}Total`, totals[category]);
+                        this.value = '';
+                        
+                        // Clear any override when new donations are added
+                        let categoryTotal = Object.values(totals).reduce((a, b) => a + b, 0);
+                        localStorage.setItem('fundraiserTotal', categoryTotal);
+                        updateTotal();
+                    }
+                });
+
+                // Allow Enter key to submit
+                document.getElementById(`${category}Input`).addEventListener('keypress', function(e) {
+                    if (e.which === 13) {
+                        this.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+
+            // Initialize everything
+            updateTotal();
+            loadPanelData();
+            loadCustomization();
+            syncColorPickers();
+
+            // Update display every second
+            setInterval(updateTotal, 1000);
+
+            // Load existing configuration placeholders
+            const savedTitle = localStorage.getItem('fundraiserTitle');
+            const savedGoal = localStorage.getItem('fundraiserGoal');
+            if (savedTitle) document.getElementById('titleInput').placeholder = `Current: ${savedTitle}`;
+            if (savedGoal) document.getElementById('goalInput').placeholder = `Current: $${parseFloat(savedGoal).toLocaleString()}`;
+        });
+    </script>
+</body>
+</html>

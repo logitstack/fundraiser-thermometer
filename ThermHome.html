@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraiser Thermometer System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .card p {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .instructions {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .instructions h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step h3 {
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+
+        .step p {
+            margin: 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .feature-highlight {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌡️ Fundraiser Thermometer</h1>
+            <p>Professional fundraising display system for live events</p>
+        </div>
+
+        <div class="cards-container">
+            <div class="card">
+                <h2>📊 Control Panel</h2>
+                <p>Input donations, set goals, and configure your thermometer display. This is where you'll manage all the data during your fundraising event.</p>
+                <a href="DonationEntry.html" class="btn" target="_blank">Open Control Panel</a>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Thermometer Display</h2>
+                <p>The beautiful thermometer visualization that shows your progress. Perfect for projecting to your audience during fundraising events.</p>
+                <a href="ThermDisplayReal.html" class="btn" target="_blank">Open Display</a>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h2>📋 How to Use</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Open Both Windows</h3>
+                    <p>Click both buttons above to open the Control Panel and Thermometer Display in separate browser tabs or windows.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Setup Your Display</h3>
+                    <p>Drag the Thermometer Display window to your projector screen or extend/mirror your display. Your audience will see this beautiful visualization.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Configure Your Fundraiser</h3>
+                    <p>In the Control Panel, set your fundraiser title, goal amount, and customize the information panels that appear beside the thermometer.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Input Donations Live</h3>
+                    <p>As donations come in during your event, enter them in the Control Panel. The thermometer will update in real-time for your audience to see!</p>
+                </div>
+            </div>
+
+            <div class="feature-highlight">
+                <h3>✨ Pro Tip</h3>
+                <p>Keep the Control Panel on your laptop/tablet while the Thermometer Display is projected. Your data is saved locally to your browser, so each location can run their own independent fundraiser!</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Fundraiser Thermometer System | Simple, Effective, Professional</p>
+            <p style="font-size: 14px; opacity: 0.7; margin-top: 8px;">
+                Created by Eyad Alrabbat | 
+                <a href="https://github.com/yourusername/fundraiser-thermometer" style="color: white; text-decoration: none;">View on GitHub</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
