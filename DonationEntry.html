@@ -78,7 +78,7 @@
             font-size: 1em;
         }
 
-        input[type="text"], input[type="number"], select {
+        input[type="text"], input[type="number"], input[type="url"], select {
             width: 180px;
             padding: 12px 15px;
             border: 2px solid #ddd;
@@ -88,10 +88,14 @@
             background: white;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+        input[type="text"]:focus, input[type="number"]:focus, input[type="url"]:focus, select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .wide-input {
+            width: 280px !important;
         }
 
         button {
@@ -110,6 +114,12 @@
         button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .total {
@@ -288,6 +298,28 @@
             width: 120px;
         }
 
+        .auto-sync-status {
+            color: #27ae60;
+            font-size: 12px;
+            font-weight: normal;
+            margin-left: 15px;
+            display: none;
+        }
+
+        .auto-sync-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
         @media (max-width: 768px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -337,6 +369,19 @@
                     <label>Override Total:</label>
                     <input type="number" id="overrideTotal" step="0.01" placeholder="0.00">
                     <button onclick="applyOverride()">Apply</button>
+                </div>
+                <div class="input-row">
+                    <label>Campaign URL:</label>
+                    <input type="url" id="campaignUrl" class="wide-input" placeholder="https://fundraise.hhrd.org/...">
+                    <button onclick="syncFromCampaign()" id="syncButton">Sync</button>
+                </div>
+                <div class="input-row">
+                    <label>Auto-sync every minute:</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoSyncToggle" onchange="toggleAutoSync()">
+                        <span class="slider"></span>
+                    </label>
+                    <span id="autoSyncStatus" class="auto-sync-status"></span>
                 </div>
             </div>
 
@@ -535,6 +580,10 @@
         let totals = {};
         let panelItemCount = { left: 0, right: 0 };
 
+        // Auto-sync variables
+        let autoSyncInterval = null;
+        let autoSyncEnabled = false;
+
         // Format number as currency
         function formatCurrency(number) {
             return '$' + number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -545,7 +594,6 @@
             let total = Object.values(totals).reduce((a, b) => a + b, 0);
             let storedOverride = parseFloat(localStorage.getItem('fundraiserTotal'));
             
-            // If there's an override, use it; otherwise calculate from categories
             if (storedOverride !== null && !isNaN(storedOverride)) {
                 document.getElementById('totalCollected').textContent = formatCurrency(storedOverride);
             } else {
@@ -581,6 +629,282 @@
                 document.getElementById('overrideTotal').value = '';
                 alert('Total overridden to ' + formatCurrency(override) + '!');
             }
+        }
+
+        // Show subtle notification for auto-sync updates
+        function showAutoSyncNotification(amount) {
+            let notification = document.getElementById('autoSyncNotification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'autoSyncNotification';
+                notification.className = 'auto-sync-notification';
+                document.body.appendChild(notification);
+            }
+            
+            notification.textContent = `Website donations synced: ${formatCurrency(amount)}`;
+            notification.style.opacity = '1';
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+            }, 3000);
+        }
+
+        // Show auto-sync status message
+        function showAutoSyncStatus(message) {
+            const statusElement = document.getElementById('autoSyncStatus');
+            if (statusElement) {
+                statusElement.textContent = message;
+                statusElement.style.display = 'inline';
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Modified sync function - now updates Website donations instead of total
+        async function syncFromCampaign(isAutoSync = false) {
+            const campaignUrl = document.getElementById('campaignUrl').value.trim();
+            if (!campaignUrl) {
+                if (!isAutoSync) {
+                    alert('Please enter a campaign URL');
+                } else {
+                    console.log('Auto-sync: No campaign URL found');
+                }
+                return;
+            }
+
+            if (!campaignUrl.includes('fundraise.hhrd.org')) {
+                if (!isAutoSync) {
+                    alert('Please enter a valid HHRD fundraising URL');
+                } else {
+                    console.log('Auto-sync: Invalid HHRD URL');
+                }
+                return;
+            }
+
+            const syncButton = document.getElementById('syncButton');
+            const originalText = syncButton.textContent;
+            
+            console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} starting for: ${campaignUrl}`);
+            
+            try {
+                if (!isAutoSync) {
+                    syncButton.textContent = 'Syncing...';
+                    syncButton.disabled = true;
+                }
+
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(campaignUrl)}`;
+                console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} fetching from proxy:`, proxyUrl);
+                
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: Failed to fetch campaign page`);
+                }
+
+                const html = await response.text();
+                console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} received HTML length:`, html.length);
+                
+                const amount = extractHHRDAmount(html);
+                console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} extracted amount:`, amount);
+
+                if (amount !== null) {
+                    const currentWebsiteAmount = totals['website'] || 0;
+                    console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} current website amount:`, currentWebsiteAmount, 'new amount:', amount);
+                    
+                    if (amount !== currentWebsiteAmount) {
+                        console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} updating website amount from ${currentWebsiteAmount} to ${amount}`);
+                        
+                        // Update the website donation total directly in the totals object and display
+                        totals['website'] = amount;
+                        document.getElementById('websiteTotal').textContent = formatCurrency(amount);
+                        localStorage.setItem('websiteTotal', amount);
+                        localStorage.setItem('campaignUrl', campaignUrl);
+                        
+                        // Recalculate and update the overall total
+                        let categoryTotal = Object.values(totals).reduce((a, b) => a + b, 0);
+                        localStorage.setItem('fundraiserTotal', categoryTotal);
+                        updateTotal();
+                        
+                        console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} new total:`, categoryTotal);
+                        
+                        if (isAutoSync) {
+                            showAutoSyncNotification(amount);
+                        } else {
+                            alert(`Successfully synced! Website donations updated to ${formatCurrency(amount)}`);
+                        }
+                    } else {
+                        console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} no change in amount, skipping update`);
+                    }
+                } else {
+                    throw new Error('Could not find donation amount on page');
+                }
+
+            } catch (error) {
+                console.error(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} error:`, error);
+                if (!isAutoSync) {
+                    alert('Sync failed: ' + error.message + '. Please check the URL and try again.');
+                }
+            } finally {
+                if (!isAutoSync) {
+                    syncButton.textContent = originalText;
+                    syncButton.disabled = false;
+                }
+            }
+        }
+
+        // Toggle auto-sync
+        function toggleAutoSync() {
+            const campaignUrl = document.getElementById('campaignUrl').value.trim();
+            if (!campaignUrl) {
+                alert('Please enter a campaign URL first');
+                document.getElementById('autoSyncToggle').checked = false;
+                return;
+            }
+
+            autoSyncEnabled = document.getElementById('autoSyncToggle').checked;
+            
+            if (autoSyncEnabled) {
+                autoSyncInterval = setInterval(() => {
+                    syncFromCampaign(true);
+                }, 60000);
+                
+                syncFromCampaign(true);
+                showAutoSyncStatus('Auto-sync enabled - syncing every minute');
+            } else {
+                if (autoSyncInterval) {
+                    clearInterval(autoSyncInterval);
+                    autoSyncInterval = null;
+                }
+                showAutoSyncStatus('Auto-sync disabled');
+            }
+            
+            localStorage.setItem('autoSyncEnabled', autoSyncEnabled);
+        }
+
+        // Load auto-sync preference on page load
+        function loadAutoSyncPreference() {
+            const saved = localStorage.getItem('autoSyncEnabled');
+            const campaignUrl = localStorage.getItem('campaignUrl');
+            
+            if (saved === 'true' && campaignUrl) {
+                document.getElementById('autoSyncToggle').checked = true;
+                autoSyncEnabled = true;
+                
+                autoSyncInterval = setInterval(() => {
+                    syncFromCampaign(true);
+                }, 60000);
+                
+                showAutoSyncStatus('Auto-sync restored - syncing every minute');
+            }
+        }
+
+        // Enhanced HTML parsing for both HHRD page formats
+        function extractHHRDAmount(html) {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Method 1: Look for "$X,XXX.XX raised" in primary bold text
+                const primaryBoldElements = doc.querySelectorAll('.text-primary.font-bold, .font-bold.text-primary');
+                for (const element of primaryBoldElements) {
+                    const text = element.textContent || element.innerText;
+                    if (text && text.includes('raised')) {
+                        const match = text.match(/\$([0-9,]+\.?[0-9]*)/);
+                        if (match) {
+                            const amount = parseFloat(match[1].replace(/,/g, ''));
+                            if (!isNaN(amount) && amount > 0) {
+                                console.log('Found amount using Method 1 (text-primary font-bold):', amount);
+                                return amount;
+                            }
+                        }
+                    }
+                }
+                
+                // Method 2: Common HHRD selectors
+                const commonSelectors = [
+                    '.donation-amount',
+                    '.raised-amount', 
+                    '.current-amount',
+                    '.amount-raised',
+                    '.total-raised',
+                    '.progress-amount',
+                    '#raised-amount',
+                    '.fund-amount',
+                    '.collected'
+                ];
+
+                for (const selector of commonSelectors) {
+                    const element = doc.querySelector(selector);
+                    if (element) {
+                        const text = element.textContent || element.innerText;
+                        const amount = parseAmountText(text);
+                        if (amount !== null && amount > 0) {
+                            console.log(`Found amount using Method 2 (${selector}):`, amount);
+                            return amount;
+                        }
+                    }
+                }
+
+                // Method 3: Look for any element containing "raised" with dollar amounts
+                const allElements = doc.querySelectorAll('*');
+                for (const element of allElements) {
+                    const text = element.textContent || element.innerText;
+                    if (text && text.includes('raised') && text.includes('$')) {
+                        const match = text.match(/\$([0-9,]+\.?[0-9]*)\s*raised/i);
+                        if (match) {
+                            const amount = parseFloat(match[1].replace(/,/g, ''));
+                            if (!isNaN(amount) && amount > 0) {
+                                console.log('Found amount using Method 3 (text contains "raised"):', amount);
+                                return amount;
+                            }
+                        }
+                    }
+                }
+
+                // Method 4: Search for potential amount elements
+                const potentialAmountElements = doc.querySelectorAll('[class*="text-"], [class*="font-"], span, div');
+                for (const element of potentialAmountElements) {
+                    const text = element.textContent || element.innerText;
+                    if (text && text.includes('$') && (text.includes('raised') || text.includes('of'))) {
+                        const amount = parseAmountText(text);
+                        if (amount !== null && amount > 0) {
+                            console.log('Found amount using Method 4 (potential amount elements):', amount);
+                            return amount;
+                        }
+                    }
+                }
+
+                // Method 5: Fallback - scan entire body for dollar amounts
+                const bodyText = doc.body ? doc.body.textContent : html;
+                const dollarMatches = bodyText.match(/\$[\d,]+(?:\.\d{2})?/g);
+                
+                if (dollarMatches && dollarMatches.length > 0) {
+                    const amounts = dollarMatches
+                        .map(match => parseAmountText(match))
+                        .filter(amt => amt !== null && amt > 0 && amt < 10000000)
+                        .sort((a, b) => b - a);
+                    
+                    if (amounts.length > 0) {
+                        console.log('Found amount using Method 5 (body text scan):', amounts[0]);
+                        console.log('All amounts found:', amounts);
+                        return amounts[0];
+                    }
+                }
+
+                console.log('No donation amount found in HTML');
+                return null;
+            } catch (error) {
+                console.error('Error parsing HTML:', error);
+                return null;
+            }
+        }
+
+        function parseAmountText(text) {
+            if (!text) return null;
+            const cleaned = text.replace(/[^0-9,\.]/g, '');
+            const number = parseFloat(cleaned.replace(/,/g, ''));
+            return isNaN(number) ? null : number;
         }
 
         // Panel management functions
@@ -664,7 +988,6 @@
         }
 
         function syncColorPickers() {
-            // Background color sync
             document.getElementById('backgroundColorPicker').addEventListener('input', function() {
                 document.getElementById('backgroundColorHex').value = this.value;
             });
@@ -676,7 +999,6 @@
                 }
             });
             
-            // Fill color sync
             document.getElementById('fillColorPicker').addEventListener('input', function() {
                 document.getElementById('fillColorHex').value = this.value;
             });
@@ -688,7 +1010,6 @@
                 }
             });
             
-            // Title color sync
             document.getElementById('titleColorPicker').addEventListener('input', function() {
                 document.getElementById('titleColorHex').value = this.value;
             });
@@ -789,7 +1110,6 @@
                     break;
             }
             
-            // Apply to form
             document.getElementById('backgroundColorPicker').value = settings.backgroundColor;
             document.getElementById('backgroundColorHex').value = settings.backgroundColor;
             document.getElementById('fillColorPicker').value = settings.fillColor;
@@ -802,7 +1122,6 @@
             document.getElementById('titleDistanceSlider').value = settings.titleDistance;
             document.getElementById('titleDistanceValue').textContent = settings.titleDistance + 'px';
             
-            // Auto-apply
             applyCustomization();
         }
 
@@ -854,7 +1173,6 @@
 
         // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize donation inputs
             categories.forEach(category => {
                 totals[category] = parseFloat(localStorage.getItem(`${category}Total`)) || 0;
                 document.getElementById(`${category}Total`).textContent = formatCurrency(totals[category]);
@@ -867,14 +1185,12 @@
                         localStorage.setItem(`${category}Total`, totals[category]);
                         this.value = '';
                         
-                        // Clear any override when new donations are added
                         let categoryTotal = Object.values(totals).reduce((a, b) => a + b, 0);
                         localStorage.setItem('fundraiserTotal', categoryTotal);
                         updateTotal();
                     }
                 });
 
-                // Allow Enter key to submit
                 document.getElementById(`${category}Input`).addEventListener('keypress', function(e) {
                     if (e.which === 13) {
                         this.dispatchEvent(new Event('change'));
@@ -882,20 +1198,21 @@
                 });
             });
 
-            // Initialize everything
             updateTotal();
             loadPanelData();
             loadCustomization();
             syncColorPickers();
+            loadAutoSyncPreference();
 
-            // Update display every second
             setInterval(updateTotal, 1000);
 
-            // Load existing configuration placeholders
             const savedTitle = localStorage.getItem('fundraiserTitle');
             const savedGoal = localStorage.getItem('fundraiserGoal');
+            const savedCampaignUrl = localStorage.getItem('campaignUrl');
+            
             if (savedTitle) document.getElementById('titleInput').placeholder = `Current: ${savedTitle}`;
             if (savedGoal) document.getElementById('goalInput').placeholder = `Current: $${parseFloat(savedGoal).toLocaleString()}`;
+            if (savedCampaignUrl) document.getElementById('campaignUrl').value = savedCampaignUrl;
         });
     </script>
 </body>
