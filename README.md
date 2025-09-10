@@ -14,7 +14,7 @@ Professional fundraising display system for live events
 
 ## Usage
 
-Visit the live demo: https://yourusername.github.io/fundraiser-thermometer
+Visit the live demo: https://logitstack.github.io/fundraiser-thermometer
 
 ## How to Use
 
