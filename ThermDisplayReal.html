@@ -13,16 +13,29 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             margin: 0; 
             background-color: #01243c; 
-            padding: 20px 0;
+            padding: 20px;
+            overflow: auto;
+        }
+        
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+            position: relative;
         }
         
         .thermometer-container { 
             position: relative; 
             width: 210px; 
-            height: 630px; 
+            height: 630px;
+            transform-origin: center center;
+            transition: transform 0.3s ease;
         }
         
         .fundraiser-title { 
@@ -286,71 +299,175 @@
             color: #01243c;
             font-weight: bold;
         }
+
+        /* Responsive scaling using media queries */
+        /* Default: Normal size for most desktop screens */
+        .thermometer-container {
+            transform: scale(1.0);
+        }
+        
+        /* Large desktop screens - slight scale up */
+        @media (min-width: 1920px) {
+            .thermometer-container {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Only scale down when the thermometer actually overflows */
+        /* Small laptop / tablet landscape (when width becomes tight) */
+        @media (max-width: 1000px) {
+            .thermometer-container {
+                transform: scale(0.85);
+            }
+        }
+
+        /* Tablet portrait */
+        @media (max-width: 800px) {
+            .thermometer-container {
+                transform: scale(0.75);
+            }
+            
+            /* Adjust panels for smaller screens */
+            .info-panel.left {
+                right: 240px;
+            }
+            
+            .info-panel.right {
+                left: 240px;
+            }
+        }
+
+        /* Large mobile landscape */
+        @media (max-width: 600px) {
+            .thermometer-container {
+                transform: scale(0.6);
+            }
+            
+            .info-panel.left {
+                right: 200px;
+            }
+            
+            .info-panel.right {
+                left: 200px;
+            }
+        }
+
+        /* Mobile portrait */
+        @media (max-width: 480px) {
+            .thermometer-container {
+                transform: scale(0.5);
+            }
+        }
+
+        /* Small mobile */
+        @media (max-width: 360px) {
+            .thermometer-container {
+                transform: scale(0.4);
+            }
+            
+            /* Stack panels above/below thermometer on very small screens */
+            .info-panel.left {
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%) translateY(-200px);
+                top: 50%;
+            }
+            
+            .info-panel.right {
+                left: 50%;
+                transform: translateX(-50%) translateY(150px);
+                top: 50%;
+            }
+        }
+
+        /* Height-based scaling only for very short screens */
+        @media (max-height: 700px) {
+            .thermometer-container {
+                transform: scale(0.8);
+            }
+        }
+
+        @media (max-height: 500px) {
+            .thermometer-container {
+                transform: scale(0.6);
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+
+        /* Ensure container doesn't overflow on any screen size */
+        .main-container {
+            overflow: auto;
+        }
     </style>
 </head>
 <body>
-    <div class="thermometer-container">
-        <!-- Left Info Panel -->
-        <div class="info-panel left" id="leftPanel">
-            <div class="panel-title" id="leftPanelTitle">Gaza</div>
-            <div id="leftPanelContent">
-                <div class="panel-item">
-                    <span class="label">1 month</span>
-                    <span class="value">$96,000</span>
-                </div>
-                <div class="panel-item">
-                    <span class="label">1 week</span>
-                    <span class="value">$22,800</span>
-                </div>
-                <div class="panel-item">
-                    <span class="label">2 days</span>
-                    <span class="value">$7,600</span>
-                </div>
-                <div class="panel-item">
-                    <span class="label">1 day</span>
-                    <span class="value">$3,800</span>
+    <div class="main-container">
+        <div class="thermometer-container">
+            <!-- Left Info Panel -->
+            <div class="info-panel left" id="leftPanel">
+                <div class="panel-title" id="leftPanelTitle">Gaza</div>
+                <div id="leftPanelContent">
+                    <div class="panel-item">
+                        <span class="label">1 month</span>
+                        <span class="value">$96,000</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="label">1 week</span>
+                        <span class="value">$22,800</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="label">2 days</span>
+                        <span class="value">$7,600</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="label">1 day</span>
+                        <span class="value">$3,800</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Right Info Panel -->
-        <div class="info-panel right" id="rightPanel">
-            <div class="panel-title" id="rightPanelTitle">Pakistan</div>
-            <div id="rightPanelContent">
-                <div class="panel-item">
-                    <span class="label">Deep Tube Well</span>
-                    <span class="value">$11,300</span>
-                </div>
-                <div class="panel-item">
-                    <span class="label">Submersible Pump</span>
-                    <span class="value">$3,450</span>
-                </div>
-                <div class="panel-item">
-                    <span class="label">Solar Well</span>
-                    <span class="value">$1,300</span>
+            <!-- Right Info Panel -->
+            <div class="info-panel right" id="rightPanel">
+                <div class="panel-title" id="rightPanelTitle">Pakistan</div>
+                <div id="rightPanelContent">
+                    <div class="panel-item">
+                        <span class="label">Deep Tube Well</span>
+                        <span class="value">$11,300</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="label">Submersible Pump</span>
+                        <span class="value">$3,450</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="label">Solar Well</span>
+                        <span class="value">$1,300</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="goal">Goal: $<span id="goalAmount">50000</span></div>
-        <div class="thermometer">
-            <div class="stem">
-                <div class="ticks" id="ticks"></div>
-                <div class="stem-perct"></div>
-            </div>
-            <div class="bulb"></div>
-            
-            <div class="liquid-surface" id="liquidSurface">
-                <div class="wave-container">
-                    <div class="wave one"></div>
-                    <div class="wave two"></div>
+            <div class="goal">Goal: $<span id="goalAmount">50000</span></div>
+            <div class="thermometer">
+                <div class="stem">
+                    <div class="ticks" id="ticks"></div>
+                    <div class="stem-perct"></div>
                 </div>
+                <div class="bulb"></div>
+                
+                <div class="liquid-surface" id="liquidSurface">
+                    <div class="wave-container">
+                        <div class="wave one"></div>
+                        <div class="wave two"></div>
+                    </div>
+                </div>
+                
+                <div class="percentage" id="percentage">65%</div>
+                <div class="amount" id="amount">$32,500</div>
             </div>
-            
-            <div class="percentage" id="percentage">0%</div>
-            <div class="amount" id="amount">$0</div>
+            <div class="fundraiser-title" id="fundraiserTitle">HHRD Water for Life</div>
         </div>
-        <div class="fundraiser-title" id="fundraiserTitle">HHRD Water for Life</div>
     </div>
 
     <script>
@@ -428,7 +545,7 @@
                             titleElement.style.fontSize = customization.titleSize + 'px';
                         }
                         
-                        // Apply title distance - this is the key fix!
+                        // Apply title distance
                         if (customization.titleDistance !== undefined) {
                             titleElement.style.bottom = `-${customization.titleDistance}px`;
                         }
@@ -497,13 +614,13 @@
         function updateThermometer() {
             let total = parseFloat(localStorage.getItem('fundraiserTotal'));
             if (total === null || isNaN(total)) {
-                total = 0;
+                total = 32500; // Demo value
             }
             let goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 50000;
             let percentage = (total / goal) * 100;
             percentage = Math.min(percentage, 100);
             
-            let title = localStorage.getItem('fundraiserTitle') || 'COMMUNITY CENTER FUND';
+            let title = localStorage.getItem('fundraiserTitle') || 'HHRD Water for Life';
             document.getElementById('fundraiserTitle').textContent = title;
             
             document.querySelector('.stem-perct').style.height = percentage + '%';
