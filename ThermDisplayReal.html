@@ -55,12 +55,15 @@
         .goal { 
             position: absolute; 
             top: -70px; 
-            width: 100%; 
+            width: 300px; /* INCREASED from 100% to accommodate longer numbers */
+            left: 50%;
+            transform: translateX(-50%); /* CENTER the wider container */
             text-align: center; 
             font-weight: 400; 
             font-size: 31px; 
             color: #fff; 
             font-family: "Moontime", cursive, Arial, sans-serif;
+            white-space: nowrap; /* PREVENT text wrapping */
         }
         
         .thermometer {
@@ -448,7 +451,7 @@
                 </div>
             </div>
 
-            <div class="goal">Goal: $<span id="goalAmount">50000</span></div>
+            <div class="goal">Goal: $<span id="goalAmount">300000</span></div>
             <div class="thermometer">
                 <div class="stem">
                     <div class="ticks" id="ticks"></div>
@@ -464,7 +467,7 @@
                 </div>
                 
                 <div class="percentage" id="percentage">65%</div>
-                <div class="amount" id="amount">$32,500</div>
+                <div class="amount" id="amount">$195,000</div>
             </div>
             <div class="fundraiser-title" id="fundraiserTitle">HHRD Water for Life</div>
         </div>
@@ -614,9 +617,9 @@
         function updateThermometer() {
             let total = parseFloat(localStorage.getItem('fundraiserTotal'));
             if (total === null || isNaN(total)) {
-                total = 32500; // Demo value
+                total = 195000; // Demo value showing higher amount
             }
-            let goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 50000;
+            let goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 300000;
             let percentage = (total / goal) * 100;
             percentage = Math.min(percentage, 100);
             
