@@ -363,7 +363,7 @@
                 <div class="section-title">📊 Current Status</div>
                 <div class="input-row">
                     <label>Total Collected:</label>
-                    <span id="totalCollected" class="total">$0.00</span>
+                    <span id="totalCollected" class="total">$0</span>
                 </div>
                 <div class="input-row">
                     <label>Override Total:</label>
@@ -584,9 +584,9 @@
         let autoSyncInterval = null;
         let autoSyncEnabled = false;
 
-        // Format number as currency
+        // Format number as currency (rounded to nearest dollar)
         function formatCurrency(number) {
-            return '$' + number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return '$' + Math.round(number).toLocaleString();
         }
 
         // Update total display

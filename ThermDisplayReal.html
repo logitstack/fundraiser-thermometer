@@ -55,15 +55,12 @@
         .goal { 
             position: absolute; 
             top: -70px; 
-            width: 300px; /* INCREASED from 100% to accommodate longer numbers */
-            left: 50%;
-            transform: translateX(-50%); /* CENTER the wider container */
+            width: 100%; 
             text-align: center; 
             font-weight: 400; 
             font-size: 31px; 
             color: #fff; 
             font-family: "Moontime", cursive, Arial, sans-serif;
-            white-space: nowrap; /* PREVENT text wrapping */
         }
         
         .thermometer {
@@ -226,18 +223,12 @@
         }
 
         .wave.one {
-            background-image: url("data:image/svg+xml;utf8,\
-              <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 28' preserveAspectRatio='none'>\
-                <path d='M0 14 Q 6 6 12 14 T 24 14 T 36 14 T 48 14 V28 H0 Z' fill='%238ddbf5'/>\
-              </svg>");
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 14 Q 6 6 12 14 T 24 14 T 36 14 T 48 14 V28 H0 Z" fill="%238ddbf5"/></svg>');
             animation: drift 4s linear infinite;
         }
 
         .wave.two {
-            background-image: url("data:image/svg+xml;utf8,\
-              <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 28' preserveAspectRatio='none'>\
-                <path d='M0 17 Q 6 8 12 17 T 24 17 T 36 17 T 48 17 V28 H0 Z' fill='%238ddbf5'/>\
-              </svg>");
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 17 Q 6 8 12 17 T 24 17 T 36 17 T 48 17 V28 H0 Z" fill="%238ddbf5"/></svg>');
             animation: drift 5s linear infinite reverse;
             opacity: 1;
         }
@@ -267,7 +258,6 @@
 
         .info-panel.right {
             left: 280px;
-            min-width: 260px;
         }
 
         .panel-title {
@@ -288,6 +278,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            white-space: nowrap;
         }
 
         .panel-item:last-child {
@@ -296,11 +287,13 @@
 
         .panel-item .label {
             font-weight: 600;
+            margin-right: 15px;
         }
 
         .panel-item .value {
             color: #01243c;
             font-weight: bold;
+            flex-shrink: 0;
         }
 
         /* Responsive scaling using media queries */
@@ -451,7 +444,7 @@
                 </div>
             </div>
 
-            <div class="goal">Goal: $<span id="goalAmount">300000</span></div>
+            <div class="goal">Goal: $<span id="goalAmount">50000</span></div>
             <div class="thermometer">
                 <div class="stem">
                     <div class="ticks" id="ticks"></div>
@@ -467,95 +460,121 @@
                 </div>
                 
                 <div class="percentage" id="percentage">65%</div>
-                <div class="amount" id="amount">$195,000</div>
+                <div class="amount" id="amount">$33,000</div>
             </div>
             <div class="fundraiser-title" id="fundraiserTitle">HHRD Water for Life</div>
         </div>
     </div>
 
     <script>
-        // Create thermometer tick marks
         function createTicks() {
-            const ticksContainer = document.getElementById('ticks');
-            const tickCount = 10;
+            var ticksContainer = document.getElementById('ticks');
+            var tickCount = 10;
             ticksContainer.innerHTML = '';
-            for (let i = 0; i <= tickCount; i++) {
-                const tick = document.createElement('div');
+            for (var i = 0; i <= tickCount; i++) {
+                var tick = document.createElement('div');
                 tick.className = 'tick';
-                tick.style.bottom = `${(i / tickCount) * 100}%`;
+                tick.style.bottom = ((i / tickCount) * 100) + '%';
                 ticksContainer.appendChild(tick);
             }
         }
 
-        // Format currency
         function formatCurrency(amount) {
-            return '$' + amount.toLocaleString();
+            return '$' + Math.round(amount).toLocaleString();
         }
 
-        // Apply visual customizations from localStorage
+        var lastPanelConfig = '';
+        
+        function calculatePanelDimensions() {
+            var leftPanel = document.getElementById('leftPanel');
+            var rightPanel = document.getElementById('rightPanel');
+            
+            // Create a hash of current panel configuration to detect changes
+            var currentConfig = leftPanel.innerHTML + '|' + rightPanel.innerHTML + '|' + 
+                               leftPanel.style.display + '|' + rightPanel.style.display;
+            
+            // Only recalculate if panel content or visibility has changed
+            if (currentConfig !== lastPanelConfig) {
+                lastPanelConfig = currentConfig;
+                
+                // Reset both panels to auto width first
+                leftPanel.style.width = 'auto';
+                rightPanel.style.width = 'auto';
+                leftPanel.style.height = 'auto';
+                rightPanel.style.height = 'auto';
+                
+                setTimeout(function() {
+                    var leftWidth = leftPanel.offsetWidth;
+                    var rightWidth = rightPanel.offsetWidth;
+                    var leftHeight = leftPanel.offsetHeight;
+                    var rightHeight = rightPanel.offsetHeight;
+                    
+                    var maxWidth = Math.max(leftWidth, rightWidth);
+                    var maxHeight = Math.max(leftHeight, rightHeight);
+                    
+                    // Set both panels to the same dimensions
+                    if (leftPanel.style.display === 'block') {
+                        leftPanel.style.width = maxWidth + 'px';
+                        leftPanel.style.height = maxHeight + 'px';
+                        leftPanel.style.top = '30%';
+                    }
+                    
+                    if (rightPanel.style.display === 'block') {
+                        rightPanel.style.width = maxWidth + 'px';
+                        rightPanel.style.height = maxHeight + 'px';
+                        rightPanel.style.top = '30%';
+                    }
+                }, 100);
+            }
+        }
+
         function applyCustomization() {
-            const saved = localStorage.getItem('thermometerCustomization');
+            var saved = localStorage.getItem('thermometerCustomization');
             if (saved) {
                 try {
-                    const customization = JSON.parse(saved);
+                    var customization = JSON.parse(saved);
                     
-                    // Apply background color
                     if (customization.backgroundColor) {
                         document.body.style.backgroundColor = customization.backgroundColor;
                     }
                     
-                    // Apply fill color to thermometer elements
                     if (customization.fillColor) {
-                        const stemPerct = document.querySelector('.stem-perct');
-                        const bulb = document.querySelector('.bulb');
+                        var stemPerct = document.querySelector('.stem-perct');
+                        var bulb = document.querySelector('.bulb');
                         
                         if (stemPerct) stemPerct.style.backgroundColor = customization.fillColor;
                         if (bulb) bulb.style.backgroundColor = customization.fillColor;
                         
-                        // Create style for bulb:after pseudo-element and waves
-                        const existingStyle = document.getElementById('customStyles');
+                        var existingStyle = document.getElementById('customStyles');
                         if (existingStyle) existingStyle.remove();
                         
-                        const customStyle = document.createElement('style');
+                        var customStyle = document.createElement('style');
                         customStyle.id = 'customStyles';
-                        const newWaveColor = customization.fillColor.replace('#', '%23');
-                        customStyle.textContent = `
-                            .bulb:after { 
-                                background: ${customization.fillColor} !important; 
-                            }
-                            .wave.one {
-                                background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 28' preserveAspectRatio='none'><path d='M0 14 Q 6 6 12 14 T 24 14 T 36 14 T 48 14 V28 H0 Z' fill='${newWaveColor}'/></svg>") !important;
-                            }
-                            .wave.two {
-                                background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 28' preserveAspectRatio='none'><path d='M0 17 Q 6 8 12 17 T 24 17 T 36 17 T 48 17 V28 H0 Z' fill='${newWaveColor}'/></svg>") !important;
-                            }
-                        `;
+                        var newWaveColor = customization.fillColor.replace('#', '%23');
+                        customStyle.textContent = '.bulb:after { background: ' + customization.fillColor + ' !important; } .wave.one { background-image: url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 14 Q 6 6 12 14 T 24 14 T 36 14 T 48 14 V28 H0 Z" fill="' + newWaveColor + '"/></svg>\') !important; } .wave.two { background-image: url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 17 Q 6 8 12 17 T 24 17 T 36 17 T 48 17 V28 H0 Z" fill="' + newWaveColor + '"/></svg>\') !important; }';
                         document.head.appendChild(customStyle);
                     }
                     
-                    // Apply title customization
-                    const titleElement = document.querySelector('.fundraiser-title');
+                    var titleElement = document.querySelector('.fundraiser-title');
                     if (titleElement) {
                         if (customization.titleColor) {
                             titleElement.style.color = customization.titleColor;
                         }
                         
                         if (customization.titleFont) {
-                            titleElement.style.fontFamily = `"${customization.titleFont}", cursive, Arial, sans-serif`;
+                            titleElement.style.fontFamily = '"' + customization.titleFont + '", cursive, Arial, sans-serif';
                         }
                         
                         if (customization.titleSize) {
                             titleElement.style.fontSize = customization.titleSize + 'px';
                         }
                         
-                        // Apply title distance
                         if (customization.titleDistance !== undefined) {
-                            titleElement.style.bottom = `-${customization.titleDistance}px`;
+                            titleElement.style.bottom = '-' + customization.titleDistance + 'px';
                         }
                     }
                     
-                    // Apply goal text size
-                    const goalElement = document.querySelector('.goal');
+                    var goalElement = document.querySelector('.goal');
                     if (goalElement && customization.goalSize) {
                         goalElement.style.fontSize = customization.goalSize + 'px';
                     }
@@ -566,93 +585,85 @@
             }
         }
 
-        // Update panels based on localStorage configuration
         function updatePanels() {
-            ['left', 'right'].forEach(side => {
-                const panelData = localStorage.getItem(`${side}Panel`);
-                const panel = document.getElementById(`${side}Panel`);
-                const panelTitle = document.getElementById(`${side}PanelTitle`);
-                const panelContent = document.getElementById(`${side}PanelContent`);
+            var sides = ['left', 'right'];
+            for (var s = 0; s < sides.length; s++) {
+                var side = sides[s];
+                var panelData = localStorage.getItem(side + 'Panel');
+                var panel = document.getElementById(side + 'Panel');
+                var panelTitle = document.getElementById(side + 'PanelTitle');
+                var panelContent = document.getElementById(side + 'PanelContent');
 
                 if (panelData) {
                     try {
-                        const data = JSON.parse(panelData);
+                        var data = JSON.parse(panelData);
                         
                         if (data.active && data.items && data.items.length > 0) {
-                            // Show panel
                             panel.style.display = 'block';
                             
-                            // Set title
-                            panelTitle.textContent = data.title || `${side.charAt(0).toUpperCase() + side.slice(1)} Panel`;
+                            panelTitle.textContent = data.title || (side.charAt(0).toUpperCase() + side.slice(1) + ' Panel');
                             
-                            // Clear and populate content
                             panelContent.innerHTML = '';
-                            data.items.forEach(item => {
+                            for (var i = 0; i < data.items.length; i++) {
+                                var item = data.items[i];
                                 if (item.label && item.value) {
-                                    const itemDiv = document.createElement('div');
+                                    var itemDiv = document.createElement('div');
                                     itemDiv.className = 'panel-item';
-                                    itemDiv.innerHTML = `
-                                        <span class="label">${item.label}</span>
-                                        <span class="value">${item.value}</span>
-                                    `;
+                                    itemDiv.innerHTML = '<span class="label">' + item.label + '</span><span class="value">' + item.value + '</span>';
                                     panelContent.appendChild(itemDiv);
                                 }
-                            });
+                            }
                         } else {
-                            // Hide panel
                             panel.style.display = 'none';
                         }
                     } catch (e) {
-                        console.error(`Error parsing ${side} panel data:`, e);
+                        console.error('Error parsing ' + side + ' panel data:', e);
                         panel.style.display = 'none';
                     }
                 } else {
-                    // No data, hide panel
                     panel.style.display = 'none';
                 }
-            });
+            }
+            
+            setTimeout(calculatePanelDimensions, 200);
         }
 
-        // Update thermometer progress and data
         function updateThermometer() {
-            let total = parseFloat(localStorage.getItem('fundraiserTotal'));
+            var total = parseFloat(localStorage.getItem('fundraiserTotal'));
             if (total === null || isNaN(total)) {
-                total = 195000; // Demo value showing higher amount
+                total = 32500;
             }
-            let goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 300000;
-            let percentage = (total / goal) * 100;
+            var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 50000;
+            var percentage = (total / goal) * 100;
             percentage = Math.min(percentage, 100);
             
-            let title = localStorage.getItem('fundraiserTitle') || 'HHRD Water for Life';
+            var title = localStorage.getItem('fundraiserTitle') || 'HHRD Water for Life';
             document.getElementById('fundraiserTitle').textContent = title;
             
             document.querySelector('.stem-perct').style.height = percentage + '%';
             document.getElementById('goalAmount').textContent = goal.toLocaleString();
             
-            document.getElementById('percentage').textContent = `${Math.round(percentage)}%`;
+            document.getElementById('percentage').textContent = Math.round(percentage) + '%';
             document.getElementById('amount').textContent = formatCurrency(total);
             
-            let newBottom = 98 + (percentage / 100) * 448;
-            document.getElementById('percentage').style.bottom = `${newBottom}px`;
-            document.getElementById('amount').style.bottom = `${newBottom}px`;
+            var newBottom = 98 + (percentage / 100) * 448;
+            document.getElementById('percentage').style.bottom = newBottom + 'px';
+            document.getElementById('amount').style.bottom = newBottom + 'px';
 
-            let liquidSurfaceBottom = 108 + (percentage / 100) * 448;
-            document.getElementById('liquidSurface').style.bottom = `${liquidSurfaceBottom}px`;
+            var liquidSurfaceBottom = 108 + (percentage / 100) * 448;
+            document.getElementById('liquidSurface').style.bottom = liquidSurfaceBottom + 'px';
         }
 
-        // Main update function
         function updateAll() {
             updateThermometer();
             updatePanels();
             applyCustomization();
         }
 
-        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
             createTicks();
             updateAll();
             
-            // Update everything every second
             setInterval(updateAll, 1000);
         });
     </script>
