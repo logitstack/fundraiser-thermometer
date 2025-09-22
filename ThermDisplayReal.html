@@ -53,15 +53,19 @@
         }
         
         .goal { 
-            position: absolute; 
-            top: -70px; 
-            width: 100%; 
-            text-align: center; 
-            font-weight: 400; 
-            font-size: 31px; 
-            color: #fff; 
-            font-family: "Moontime", cursive, Arial, sans-serif;
-        }
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, calc(-100% - 24px)); /* keep label above thermometer */
+  width: auto;
+  text-align: center;
+  font-weight: 400;
+  font-size: clamp(20px, 3vw, 31px);
+  color: #fff;
+  font-family: "Moontime", cursive, Arial, sans-serif;
+  white-space: nowrap; /* prevent wrapping for 6-figure goals */
+  pointer-events: none; /* don't block clicks */
+}
         
         .thermometer {
             display: block;
