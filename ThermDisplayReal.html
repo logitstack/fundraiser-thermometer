@@ -637,7 +637,7 @@
             if (total === null || isNaN(total)) {
                 total = 32500;
             }
-            var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 50000;
+            var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 200000;
             var percentage = (total / goal) * 100;
             percentage = Math.min(percentage, 100);
             
