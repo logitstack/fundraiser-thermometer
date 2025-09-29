@@ -567,7 +567,7 @@
             <h3>Quick Actions</h3>
             <div class="quick-actions">
                 <button class="quick-btn" onclick="clearAllData()">🗑️ Clear All Data</button>
-                <button class="quick-btn" onclick="exportData()">📤 Export Data</button>
+                <button class="quick-btn" onclick="exportData()">📤 Export CSV</button>
                 <button class="quick-btn" onclick="importData()">📥 Import Data</button>
                 <button class="quick-btn" onclick="window.open('ThermDisplayReal.html', '_blank')">🌡️ Open Display</button>
             </div>
@@ -579,10 +579,42 @@
         let categories = ['cash', 'check', 'pledges', 'square', 'website'];
         let totals = {};
         let panelItemCount = { left: 0, right: 0 };
+        let transactions = []; // Store individual transactions
 
         // Auto-sync variables
         let autoSyncInterval = null;
         let autoSyncEnabled = false;
+
+        // Load transactions from localStorage
+        function loadTransactions() {
+            const savedTransactions = localStorage.getItem('transactions');
+            if (savedTransactions) {
+                try {
+                    transactions = JSON.parse(savedTransactions);
+                } catch (e) {
+                    console.error('Error loading transactions:', e);
+                    transactions = [];
+                }
+            }
+        }
+
+        // Save transactions to localStorage
+        function saveTransactions() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        // Add a transaction record
+        function addTransaction(type, amount, timestamp = null) {
+            if (!timestamp) {
+                timestamp = new Date().toISOString();
+            }
+            transactions.push({
+                type: type,
+                amount: amount,
+                timestamp: timestamp
+            });
+            saveTransactions();
+        }
 
         // Format number as currency (rounded to nearest dollar)
         function formatCurrency(number) {
@@ -624,6 +656,13 @@
         function applyOverride() {
             let override = parseFloat(document.getElementById('overrideTotal').value);
             if (!isNaN(override)) {
+                // Record the override as a transaction
+                const currentTotal = Object.values(totals).reduce((a, b) => a + b, 0);
+                const difference = override - currentTotal;
+                if (difference !== 0) {
+                    addTransaction('override', difference);
+                }
+                
                 localStorage.setItem('fundraiserTotal', override);
                 document.getElementById('totalCollected').textContent = formatCurrency(override);
                 document.getElementById('overrideTotal').value = '';
@@ -714,6 +753,10 @@
                     
                     if (amount !== currentWebsiteAmount) {
                         console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} updating website amount from ${currentWebsiteAmount} to ${amount}`);
+                        
+                        // Record the change as a transaction
+                        const difference = amount - currentWebsiteAmount;
+                        addTransaction('website', difference);
                         
                         // Update the website donation total directly in the totals object and display
                         totals['website'] = amount;
@@ -1129,23 +1172,45 @@
         function clearAllData() {
             if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
                 localStorage.clear();
+                transactions = [];
                 location.reload();
             }
         }
 
+        // Fixed export data function - now exports CSV of transactions
         function exportData() {
-            const data = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                data[key] = localStorage.getItem(key);
+            if (transactions.length === 0) {
+                alert('No transaction data to export. Add some donations first!');
+                return;
             }
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+
+            // Create CSV header
+            let csvContent = 'Type,Amount,Timestamp\n';
+            
+            // Add each transaction
+            transactions.forEach(transaction => {
+                const date = new Date(transaction.timestamp).toLocaleString();
+                csvContent += `${transaction.type},${transaction.amount},"${date}"\n`;
+            });
+
+            // Create and download the CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'fundraiser-data.json';
-            a.click();
-            URL.revokeObjectURL(url);
+            link.setAttribute('href', url);
+            
+            // Generate filename with current date
+            const now = new Date();
+            const dateStr = now.getFullYear() + '-' + 
+                           String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(now.getDate()).padStart(2, '0');
+            link.setAttribute('download', `fundraiser-transactions-${dateStr}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert(`Exported ${transactions.length} transactions to CSV file!`);
         }
 
         function importData() {
@@ -1173,6 +1238,9 @@
 
         // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            // Load transactions first
+            loadTransactions();
+            
             categories.forEach(category => {
                 totals[category] = parseFloat(localStorage.getItem(`${category}Total`)) || 0;
                 document.getElementById(`${category}Total`).textContent = formatCurrency(totals[category]);
@@ -1180,6 +1248,9 @@
                 document.getElementById(`${category}Input`).addEventListener('change', function() {
                     let value = parseFloat(this.value);
                     if (!isNaN(value) && value !== 0) {
+                        // Record the transaction
+                        addTransaction(category, value);
+                        
                         totals[category] += value;
                         document.getElementById(`${category}Total`).textContent = formatCurrency(totals[category]);
                         localStorage.setItem(`${category}Total`, totals[category]);
