@@ -401,9 +401,175 @@
         .main-container {
             overflow: auto;
         }
+
+        /* Animation for amount changes */
+        .amount-pulse {
+            animation: pulse 0.6s ease-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); color: #27ae60; }
+            100% { transform: scale(1); }
+        }
+
+        .thermometer-glow {
+            animation: glow 1s ease-out;
+        }
+
+        @keyframes glow {
+            0% { filter: drop-shadow(0 0 5px #27ae60); }
+            100% { filter: none; }
+        }
+
+        /* Controls overlay */
+        .controls-overlay {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .controls-overlay:hover {
+            opacity: 1;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            background: white;
+        }
+
+        .control-btn.active {
+            background: #27ae60;
+            color: white;
+        }
+
+        /* QR Code overlay */
+        .qr-overlay {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: none;
+            text-align: center;
+            z-index: 100;
+        }
+
+        .qr-overlay.visible {
+            display: block;
+        }
+
+        .qr-overlay img {
+            width: 150px;
+            height: 150px;
+        }
+
+        .qr-overlay p {
+            margin: 10px 0 0 0;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* Milestone celebration */
+        .milestone-banner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 60px;
+            border-radius: 20px;
+            font-size: 36px;
+            font-family: "Anton", Arial, sans-serif;
+            text-align: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .milestone-banner.show {
+            animation: milestoneShow 3s ease-out forwards;
+        }
+
+        @keyframes milestoneShow {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            25% { transform: translate(-50%, -50%) scale(1); }
+            85% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            z-index: 1999;
+            pointer-events: none;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Fullscreen styles */
+        .fullscreen-active {
+            cursor: none;
+        }
+
+        .fullscreen-active .controls-overlay {
+            opacity: 0;
+        }
+
+        .fullscreen-active:hover .controls-overlay {
+            opacity: 0.3;
+        }
     </style>
 </head>
 <body>
+    <!-- Controls overlay -->
+    <div class="controls-overlay">
+        <button class="control-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+        <button class="control-btn" id="soundBtn" onclick="toggleSound()" title="Sound notifications">🔔</button>
+        <button class="control-btn" id="qrBtn" onclick="toggleQR()" title="Show QR code">📱</button>
+    </div>
+
+    <!-- QR Code overlay -->
+    <div class="qr-overlay" id="qrOverlay">
+        <img id="qrImage" src="" alt="QR Code">
+        <p>Scan to donate</p>
+    </div>
+
+    <!-- Milestone celebration banner -->
+    <div class="milestone-banner" id="milestoneBanner"></div>
+
     <div class="main-container">
         <div class="thermometer-container">
             <!-- Left Info Panel -->
@@ -471,6 +637,226 @@
     </div>
 
     <script>
+        // State variables
+        var lastTotal = 0;
+        var lastPercentage = 0;
+        var soundEnabled = false;
+        var qrVisible = false;
+        var celebratedMilestones = [];
+        var broadcastChannel = null;
+
+        // Initialize BroadcastChannel for instant updates
+        try {
+            broadcastChannel = new BroadcastChannel('fundraiser-updates');
+            broadcastChannel.onmessage = function(event) {
+                console.log('Received broadcast:', event.data);
+                if (event.data.type === 'resetMilestones') {
+                    celebratedMilestones = [];
+                } else if (event.data.type === 'clearUrl') {
+                    // Hide QR code when URL is cleared
+                    qrVisible = false;
+                    localStorage.setItem('displayQRVisible', false);
+                    document.getElementById('qrBtn').classList.remove('active');
+                    document.getElementById('qrOverlay').classList.remove('visible');
+                }
+                updateAll();
+            };
+        } catch (e) {
+            console.log('BroadcastChannel not supported, using localStorage polling');
+        }
+
+        // Load settings from localStorage
+        function loadDisplaySettings() {
+            soundEnabled = localStorage.getItem('displaySoundEnabled') === 'true';
+            qrVisible = localStorage.getItem('displayQRVisible') === 'true';
+            var celebrated = localStorage.getItem('celebratedMilestones');
+            if (celebrated) {
+                try {
+                    celebratedMilestones = JSON.parse(celebrated);
+                } catch(e) {
+                    celebratedMilestones = [];
+                }
+            }
+
+            // Update button states
+            document.getElementById('soundBtn').classList.toggle('active', soundEnabled);
+            document.getElementById('qrBtn').classList.toggle('active', qrVisible);
+            if (qrVisible) {
+                document.getElementById('qrOverlay').classList.add('visible');
+                updateQRCode();
+            }
+        }
+
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                document.body.classList.add('fullscreen-active');
+            } else {
+                document.exitFullscreen();
+                document.body.classList.remove('fullscreen-active');
+            }
+        }
+
+        // Toggle sound notifications
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('displaySoundEnabled', soundEnabled);
+            document.getElementById('soundBtn').classList.toggle('active', soundEnabled);
+        }
+
+        // Toggle QR code display
+        function toggleQR() {
+            qrVisible = !qrVisible;
+            localStorage.setItem('displayQRVisible', qrVisible);
+            document.getElementById('qrBtn').classList.toggle('active', qrVisible);
+            document.getElementById('qrOverlay').classList.toggle('visible', qrVisible);
+            if (qrVisible) {
+                updateQRCode();
+            }
+        }
+
+        // Update QR code based on campaign URL
+        function updateQRCode() {
+            var campaignUrl = localStorage.getItem('campaignUrl');
+            if (campaignUrl) {
+                // Use QR code API
+                var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(campaignUrl);
+                document.getElementById('qrImage').src = qrUrl;
+            } else {
+                document.getElementById('qrOverlay').classList.remove('visible');
+            }
+        }
+
+        // Play notification sound
+        function playNotificationSound() {
+            if (!soundEnabled) return;
+            try {
+                var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                var oscillator = audioContext.createOscillator();
+                var gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch(e) {
+                console.log('Sound not available');
+            }
+        }
+
+        // Animate amount change
+        function animateAmountChange() {
+            var amountEl = document.getElementById('amount');
+            var thermContainer = document.querySelector('.thermometer-container');
+
+            amountEl.classList.remove('amount-pulse');
+            thermContainer.classList.remove('thermometer-glow');
+
+            // Trigger reflow
+            void amountEl.offsetWidth;
+
+            amountEl.classList.add('amount-pulse');
+            thermContainer.classList.add('thermometer-glow');
+
+            playNotificationSound();
+        }
+
+        // Check and celebrate milestones
+        function checkMilestones(percentage) {
+            var milestones = [25, 50, 75, 100];
+            var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 200000;
+
+            milestones.forEach(function(milestone) {
+                if (percentage >= milestone && lastPercentage < milestone && !celebratedMilestones.includes(milestone)) {
+                    celebratedMilestones.push(milestone);
+                    localStorage.setItem('celebratedMilestones', JSON.stringify(celebratedMilestones));
+                    celebrateMilestone(milestone, goal);
+                }
+            });
+        }
+
+        // Show milestone celebration
+        function celebrateMilestone(milestone, goal) {
+            var banner = document.getElementById('milestoneBanner');
+            var amount = (milestone / 100) * goal;
+
+            if (milestone === 100) {
+                banner.innerHTML = '🎉 GOAL REACHED! 🎉<br>' + formatCurrency(goal);
+            } else {
+                banner.innerHTML = '🎊 ' + milestone + '% Milestone! 🎊<br>' + formatCurrency(amount) + ' raised!';
+            }
+
+            banner.classList.remove('show');
+            void banner.offsetWidth;
+            banner.classList.add('show');
+
+            // Create confetti
+            createConfetti();
+
+            // Play celebration sound
+            if (soundEnabled) {
+                playCelebrationSound();
+            }
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            var colors = ['#667eea', '#764ba2', '#f39c12', '#e74c3c', '#27ae60', '#3498db'];
+            var confettiCount = 50;
+
+            for (var i = 0; i < confettiCount; i++) {
+                setTimeout(function() {
+                    var confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                    confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                    confetti.style.animation = 'confettiFall ' + (Math.random() * 2 + 2) + 's linear forwards';
+
+                    document.body.appendChild(confetti);
+
+                    setTimeout(function() {
+                        confetti.remove();
+                    }, 4000);
+                }, i * 50);
+            }
+        }
+
+        // Play celebration sound
+        function playCelebrationSound() {
+            try {
+                var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                var notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+
+                notes.forEach(function(freq, i) {
+                    var oscillator = audioContext.createOscillator();
+                    var gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + i * 0.15);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.15 + 0.3);
+
+                    oscillator.start(audioContext.currentTime + i * 0.15);
+                    oscillator.stop(audioContext.currentTime + i * 0.15 + 0.3);
+                });
+            } catch(e) {
+                console.log('Celebration sound not available');
+            }
+        }
+
         function createTicks() {
             var ticksContainer = document.getElementById('ticks');
             var tickCount = 10;
@@ -640,22 +1026,36 @@
             var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 200000;
             var percentage = (total / goal) * 100;
             percentage = Math.min(percentage, 100);
-            
+
             var title = localStorage.getItem('fundraiserTitle') || 'HHRD Water for Life';
             document.getElementById('fundraiserTitle').textContent = title;
-            
+
             document.querySelector('.stem-perct').style.height = percentage + '%';
             document.getElementById('goalAmount').textContent = goal.toLocaleString();
-            
+
             document.getElementById('percentage').textContent = Math.round(percentage) + '%';
             document.getElementById('amount').textContent = formatCurrency(total);
-            
+
             var newBottom = 98 + (percentage / 100) * 448;
             document.getElementById('percentage').style.bottom = newBottom + 'px';
             document.getElementById('amount').style.bottom = newBottom + 'px';
 
             var liquidSurfaceBottom = 108 + (percentage / 100) * 448;
             document.getElementById('liquidSurface').style.bottom = liquidSurfaceBottom + 'px';
+
+            // Check for changes and animate
+            if (total > lastTotal && lastTotal > 0) {
+                animateAmountChange();
+                checkMilestones(percentage);
+            }
+
+            // Update QR code if campaign URL changed
+            if (qrVisible) {
+                updateQRCode();
+            }
+
+            lastTotal = total;
+            lastPercentage = percentage;
         }
 
         function updateAll() {
@@ -666,9 +1066,38 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             createTicks();
+            loadDisplaySettings();
+
+            // Initialize lastTotal to prevent animation on first load
+            var initialTotal = parseFloat(localStorage.getItem('fundraiserTotal'));
+            if (!isNaN(initialTotal)) {
+                lastTotal = initialTotal;
+                var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 200000;
+                lastPercentage = Math.min((initialTotal / goal) * 100, 100);
+            }
+
             updateAll();
-            
+
+            // Use longer interval since BroadcastChannel provides instant updates
             setInterval(updateAll, 1000);
+
+            // Listen for fullscreen changes
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement) {
+                    document.body.classList.remove('fullscreen-active');
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'f' || e.key === 'F') {
+                    toggleFullscreen();
+                } else if (e.key === 's' || e.key === 'S') {
+                    toggleSound();
+                } else if (e.key === 'q' || e.key === 'Q') {
+                    toggleQR();
+                }
+            });
         });
     </script>
 </body>
