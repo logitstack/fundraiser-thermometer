@@ -4,690 +4,555 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fundraiser Thermometer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Moontime&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@600;700&family=Anton&family=Moontime&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: "Anton", Arial, sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0; 
-            background-color: #01243c; 
-            padding: 20px;
-            overflow: auto;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0B1628;
+            --fill: #4FC3F7;
+            --title-color: #F5A623;
+            --glass: rgba(255,255,255,0.06);
+            --glass-border: rgba(255,255,255,0.12);
+            --gold: #F5A623;
         }
-        
-        .main-container {
+
+        body {
+            font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: 100%;
             min-height: 100vh;
-            position: relative;
-        }
-        
-        .thermometer-container { 
-            position: relative; 
-            width: 210px; 
-            height: 630px;
-            transform-origin: center center;
-            transition: transform 0.3s ease;
-        }
-        
-        .fundraiser-title { 
-            position: absolute;
-            bottom: -80px;
-            width: 560px;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            font-weight: 400;
-            font-size: 45px;
-            color: #efab3a;
-            font-family: "Dancing Script", cursive, Arial, sans-serif;
-            letter-spacing: 1px;
-        }
-        
-        .goal { 
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, calc(-100% - 24px)); /* keep label above thermometer */
-  width: auto;
-  text-align: center;
-  font-weight: 400;
-  font-size: clamp(20px, 3vw, 31px);
-  color: #fff;
-  font-family: "Moontime", cursive, Arial, sans-serif;
-  white-space: nowrap; /* prevent wrapping for 6-figure goals */
-  pointer-events: none; /* don't block clicks */
-}
-        
-        .thermometer {
-            display: block;
-            position: relative;
-            height: 560px;
-        }
-        
-        .bulb {
-            display: inline-block;
-            border: 8px solid #fff;
-            width: 112px;
-            height: 112px;
-            border-radius: 50%;
-            position: absolute;
-            left: 49px;
-            bottom: 0;
-            border-top: 4px solid #fff;
-            box-shadow: 0px 0px 0px 6px #fff inset;
-            background: #8ddbf5;
-            overflow: hidden;
-        }
-        
-        .stem {
-            display: inline-block;
-            border: 8px solid #fff;
-            width: 56px;
-            height: 448px;
-            border-radius: 31px 31px 0 0;
-            border-bottom: 4px solid transparent;
-            position: absolute;
-            bottom: 108px;
-            left: 77px;
-            box-shadow: 0px 0px 0px 6px #fff inset;
-            z-index: 20;
-            overflow: hidden;
-            background-color: transparent;
-        }
-        
-        .stem-perct {
-            width: 45px;
-            background: #8ddbf5;
-            display: block;
-            margin: 0 auto;
-            border-radius: 0;
-            transition: height 0.8s cubic-bezier(.2,.9,.25,1.25);
-            position: absolute;
-            bottom: 0;
-            left: 6px;
-            z-index: 5;
-        }
-        
-        .bulb:after {
-            content: '';
-            height: 42px;
-            width: 48px;
-            background: #8ddbf5;
-            position: absolute;
-            left: 32px;
-            bottom: 77px;
-            z-index: 12;
-        }
-        
-        .ticks {
-            position: absolute;
-            top: 4px;
-            left: 6px;
-            height: calc(100% - 8px);
-            width: calc(100% - 8px);
-            z-index: 5;
-        }
-        
-        .tick {
-            width: 30%;
-            height: 3px;
-            background-color: #aaa;
-            position: absolute;
-            left: 0;
-        }
-        
-        .percentage {
-            position: absolute;
-            left: -7px;
-            background-color: #fff;
-            color: #34495e;
-            padding: 6px 11px;
-            border-radius: 17px;
-            font-weight: bold;
-            transition: bottom 0.5s;
-            bottom: 98px;
-            font-size: 20px;
-            z-index: 20;
-            font-family: "Moontime", cursive, Arial, sans-serif;
-        }
-        
-        .percentage::after {
-            content: '';
-            position: absolute;
-            right: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-left: 6px solid #fff;
-            border-top: 6px solid transparent;
-            border-bottom: 6px solid transparent;
-        }
-        
-        .amount {
-            position: absolute;
-            right: -49px;
-            background-color: #fff;
-            color: #34495e;
-            padding: 6px 11px 6px 11px;
-            border-radius: 17px;
-            font-weight: bold;
-            transition: bottom 0.5s;
-            bottom: 98px;
-            font-size: 20px;
-            z-index: 20;
-            transform-origin: left center;
-            white-space: nowrap;
-            font-family: "Moontime", cursive, Arial, sans-serif;
-        }
-        
-        .amount::before {
-            content: '';
-            position: absolute;
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-right: 6px solid #fff;
-            border-top: 6px solid transparent;
-            border-bottom: 6px solid transparent;
-        }
-
-        .liquid-surface {
-            position: absolute;
-            left: 90px;
-            width: 48px;
-            height: 28px;
-            bottom: 108px;
-            z-index: 10;
-            transition: bottom 0.8s cubic-bezier(.2,.9,.25,1.25);
+            margin: 0;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(79,195,247,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(245,166,35,0.05) 0%, transparent 50%);
             overflow: hidden;
         }
 
-        .wave-container {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 48px;
-            height: 28px;
-        }
-
-        .wave {
-            position: absolute;
-            inset: 0;
-            background-size: 48px 100%;
-            background-repeat: repeat-x;
-            opacity: 1;
-        }
-
-        .wave.one {
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 14 Q 6 6 12 14 T 24 14 T 36 14 T 48 14 V28 H0 Z" fill="%238ddbf5"/></svg>');
-            animation: drift 4s linear infinite;
-        }
-
-        .wave.two {
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 17 Q 6 8 12 17 T 24 17 T 36 17 T 48 17 V28 H0 Z" fill="%238ddbf5"/></svg>');
-            animation: drift 5s linear infinite reverse;
-            opacity: 1;
-        }
-
-        @keyframes drift {
-            from { background-position-x: 0; }
-            to   { background-position-x: -48px; }
-        }
-
-        .info-panel {
-            position: absolute;
-            top: 30%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            min-width: 200px;
-            display: none;
-        }
-
-        .info-panel.left {
-            right: 280px;
-        }
-
-        .info-panel.right {
-            left: 280px;
-        }
-
-        .panel-title {
-            font-family: "Anton", Arial, sans-serif;
-            font-size: 32px;
-            color: #01243c;
-            margin-bottom: 15px;
-            text-align: center;
-            border-bottom: 2px solid #efab3a;
-            padding-bottom: 8px;
-        }
-
-        .panel-item {
-            font-family: "Moontime", cursive, Arial, sans-serif;
-            font-size: 20px;
-            color: #34495e;
-            margin-bottom: 8px;
+        /* ── STAGE LAYOUT ─────────────────────────────────── */
+        .stage {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            white-space: nowrap;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            gap: 0;
+            transition: gap 0.6s cubic-bezier(.4,0,.2,1);
         }
 
-        .panel-item:last-child {
-            margin-bottom: 0;
+        .stage.qr-open {
+            gap: 60px;
         }
 
-        .panel-item .label {
-            font-weight: 600;
-            margin-right: 15px;
-        }
-
-        .panel-item .value {
-            color: #01243c;
-            font-weight: bold;
+        /* ── THERMOMETER WRAPPER ──────────────────────────── */
+        .therm-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            transition: transform 0.6s cubic-bezier(.4,0,.2,1);
             flex-shrink: 0;
         }
 
-        /* Responsive scaling using media queries */
-        /* Default: Normal size for most desktop screens */
+        /* ── THERMOMETER CONTAINER ────────────────────────── */
         .thermometer-container {
-            transform: scale(1.0);
-        }
-        
-        /* Large desktop screens - slight scale up */
-        @media (min-width: 1920px) {
-            .thermometer-container {
-                transform: scale(1.1);
-            }
+            position: relative;
+            width: 210px;
+            height: 640px;
+            transform-origin: center bottom;
         }
 
-        /* Only scale down when the thermometer actually overflows */
-        /* Small laptop / tablet landscape (when width becomes tight) */
-        @media (max-width: 1000px) {
-            .thermometer-container {
-                transform: scale(0.85);
-            }
+        .fundraiser-title {
+            position: absolute;
+            bottom: -90px;
+            width: 600px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 46px;
+            color: var(--title-color);
+            font-family: 'Dancing Script', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 20px rgba(245,166,35,0.4);
+            white-space: nowrap;
         }
 
-        /* Tablet portrait */
-        @media (max-width: 800px) {
-            .thermometer-container {
-                transform: scale(0.75);
-            }
-            
-            /* Adjust panels for smaller screens */
-            .info-panel.left {
-                right: 240px;
-            }
-            
-            .info-panel.right {
-                left: 240px;
-            }
+        .goal {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, calc(-100% - 24px));
+            text-align: center;
+            font-size: clamp(18px, 2.5vw, 28px);
+            color: rgba(255,255,255,0.85);
+            font-family: 'Moontime', cursive;
+            white-space: nowrap;
+            letter-spacing: 1px;
         }
 
-        /* Large mobile landscape */
-        @media (max-width: 600px) {
-            .thermometer-container {
-                transform: scale(0.6);
-            }
-            
-            .info-panel.left {
-                right: 200px;
-            }
-            
-            .info-panel.right {
-                left: 200px;
-            }
+        /* ── THERMOMETER BODY ─────────────────────────────── */
+        .thermometer { display: block; position: relative; height: 560px; width: 210px; }
+
+        /* Single SVG replaces all CSS stem/bulb/connector elements */
+        .therm-svg {
+            position: absolute;
+            left: 0; top: 0;
+            width: 210px; height: 560px;
+            overflow: visible;
         }
 
-        /* Mobile portrait */
-        @media (max-width: 480px) {
-            .thermometer-container {
-                transform: scale(0.5);
-            }
+        /* liquid surface */
+        .liquid-surface {
+            position: absolute;
+            left: 84px;
+            width: 42px;
+            height: 28px;
+            bottom: 100px;
+            z-index: 10;
+            transition: bottom 1s cubic-bezier(.2,.9,.25,1.1), opacity 0.4s ease;
+            overflow: hidden;
         }
-
-        /* Small mobile */
-        @media (max-width: 360px) {
-            .thermometer-container {
-                transform: scale(0.4);
-            }
-            
-            /* Stack panels above/below thermometer on very small screens */
-            .info-panel.left {
-                right: auto;
-                left: 50%;
-                transform: translateX(-50%) translateY(-200px);
-                top: 50%;
-            }
-            
-            .info-panel.right {
-                left: 50%;
-                transform: translateX(-50%) translateY(150px);
-                top: 50%;
-            }
+        .wave-container { position: absolute; left: 0; top: 0; width: 48px; height: 28px; }
+        .wave { position: absolute; inset: 0; background-size: 48px 100%; background-repeat: repeat-x; }
+        .wave.one {
+            /* fill = same as main fill colour (#4FC3F7) so crests match the water body */
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 14 Q 6 6 12 14 T 24 14 T 36 14 T 48 14 V28 H0 Z" fill="%234FC3F7"/></svg>');
+            animation: drift 4s linear infinite;
         }
-
-        /* Height-based scaling only for very short screens */
-        @media (max-height: 700px) {
-            .thermometer-container {
-                transform: scale(0.8);
-            }
+        .wave.two {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 17 Q 6 8 12 17 T 24 17 T 36 17 T 48 17 V28 H0 Z" fill="%234FC3F7"/></svg>');
+            animation: drift 5s linear infinite reverse;
         }
+        @keyframes drift { from { background-position-x: 0; } to { background-position-x: -48px; } }
 
-        @media (max-height: 500px) {
-            .thermometer-container {
-                transform: scale(0.6);
-            }
-            
-            body {
-                padding: 10px;
-            }
-        }
-
-        /* Ensure container doesn't overflow on any screen size */
-        .main-container {
-            overflow: auto;
-        }
-
-        /* Animation for amount changes */
-        .amount-pulse {
-            animation: pulse 0.6s ease-out;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); color: #27ae60; }
-            100% { transform: scale(1); }
-        }
-
-        .thermometer-glow {
-            animation: glow 1s ease-out;
-        }
-
-        @keyframes glow {
-            0% { filter: drop-shadow(0 0 5px #27ae60); }
-            100% { filter: none; }
-        }
-
-        /* Controls overlay */
-        .controls-overlay {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-            opacity: 0.3;
-            transition: opacity 0.3s;
-        }
-
-        .controls-overlay:hover {
-            opacity: 1;
-        }
-
-        .control-btn {
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
+        /* labels on stem */
+        .percentage {
+            position: absolute;
+            left: -10px;
+            background: rgba(255,255,255,0.95);
+            color: #0B1628;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 700;
             font-size: 18px;
+            font-family: 'Inter', sans-serif;
+            transition: bottom 0.7s cubic-bezier(.2,.9,.25,1.1);
+            bottom: 98px;
+            z-index: 25;
+            white-space: nowrap;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .percentage::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 5px solid rgba(255,255,255,0.95);
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        .amount {
+            position: absolute;
+            right: -52px;
+            background: rgba(255,255,255,0.95);
+            color: #0B1628;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 18px;
+            font-family: 'Inter', sans-serif;
+            transition: bottom 0.7s cubic-bezier(.2,.9,.25,1.1);
+            bottom: 98px;
+            z-index: 25;
+            white-space: nowrap;
+            transform-origin: left center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .amount::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right: 5px solid rgba(255,255,255,0.95);
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        /* ── INFO PANELS ──────────────────────────────────── */
+        .info-panel {
+            position: absolute;
+            top: 28%;
+            transform: translateY(-50%);
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 22px 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            min-width: 200px;
+            display: none;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+        }
+        .info-panel.left  { right: 268px; }
+        .info-panel.right { left: 268px; }
+
+        .panel-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold);
+            margin-bottom: 14px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(245,166,35,0.3);
+        }
+        .panel-item {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 9px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            white-space: nowrap;
+        }
+        .panel-item:last-child { margin-bottom: 0; }
+        .panel-item .label { color: rgba(255,255,255,0.55); font-weight: 400; }
+        .panel-item .value { color: #fff; font-weight: 600; flex-shrink: 0; }
+
+        /* ── QR PANEL ─────────────────────────────────────── */
+        .qr-panel {
+            width: 0;
+            overflow: hidden;
+            opacity: 0;
+            flex-shrink: 0;
+            transition:
+                width 0.6s cubic-bezier(.4,0,.2,1),
+                opacity 0.5s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            transition: transform 0.2s, background 0.2s;
         }
-
-        .control-btn:hover {
-            transform: scale(1.1);
-            background: white;
+        .qr-panel.visible {
+            width: 280px;
+            opacity: 1;
         }
-
-        .control-btn.active {
-            background: #27ae60;
-            color: white;
-        }
-
-        /* QR Code overlay */
-        .qr-overlay {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            display: none;
+        .qr-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 24px;
+            padding: 28px 24px 24px;
             text-align: center;
-            z-index: 100;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(255,255,255,0.05) inset;
+            width: 260px;
         }
-
-        .qr-overlay.visible {
+        .qr-card-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+        .qr-canvas-wrap {
+            background: #fff;
+            border-radius: 14px;
+            padding: 12px;
+            display: inline-block;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        #qrCanvas {
             display: block;
+            width: 180px;
+            height: 180px;
+            image-rendering: pixelated;
+        }
+        .qr-card-cta {
+            margin-top: 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .qr-card-url {
+            margin-top: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            word-break: break-all;
+            line-height: 1.4;
         }
 
-        .qr-overlay img {
-            width: 150px;
-            height: 150px;
+        /* ── CONTROLS ─────────────────────────────────────── */
+        .controls-overlay {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+            opacity: 0.25;
+            transition: opacity 0.3s;
+        }
+        .controls-overlay:hover { opacity: 1; }
+        .control-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            backdrop-filter: blur(10px);
+            transition: background 0.2s, transform 0.15s;
+        }
+        .control-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.2); }
+        .control-btn.active { background: rgba(245,166,35,0.6); border-color: var(--gold); }
+
+        /* ── RESPONSIVE SCALING ───────────────────────────── */
+        .thermometer-container { transform: scale(1.0); }
+        @media (min-width: 1920px) { .thermometer-container { transform: scale(1.15); } }
+        @media (max-width: 1200px) { .thermometer-container { transform: scale(0.9); } }
+        @media (max-width: 900px)  { .thermometer-container { transform: scale(0.75); } }
+        @media (max-width: 650px)  { .thermometer-container { transform: scale(0.6);  } }
+        @media (max-width: 480px)  { .thermometer-container { transform: scale(0.5);  } }
+        @media (max-height: 700px) { .thermometer-container { transform: scale(0.8);  } }
+        @media (max-height: 500px) { .thermometer-container { transform: scale(0.65); } }
+
+        /* ── ANIMATIONS ───────────────────────────────────── */
+        .amount-pulse { animation: pulse 0.7s ease-out; }
+        @keyframes pulse {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.18); color: #27ae60; }
+            100% { transform: scale(1); }
+        }
+        .therm-glow { animation: glow 1.2s ease-out; }
+        @keyframes glow {
+            0%   { filter: drop-shadow(0 0 8px rgba(79,195,247,0.9)); }
+            100% { filter: none; }
         }
 
-        .qr-overlay p {
-            margin: 10px 0 0 0;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            color: #333;
-        }
-
-        /* Milestone celebration */
+        /* ── MILESTONE BANNER ─────────────────────────────── */
         .milestone-banner {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a3a6b 0%, #0d2545 100%);
+            border: 1px solid rgba(245,166,35,0.5);
             color: white;
-            padding: 30px 60px;
-            border-radius: 20px;
-            font-size: 36px;
-            font-family: "Anton", Arial, sans-serif;
+            padding: 32px 64px;
+            border-radius: 24px;
+            font-size: 34px;
+            font-family: 'Anton', sans-serif;
             text-align: center;
             z-index: 2000;
             opacity: 0;
             pointer-events: none;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 80px rgba(245,166,35,0.15);
         }
-
-        .milestone-banner.show {
-            animation: milestoneShow 3s ease-out forwards;
-        }
-
+        .milestone-banner.show { animation: milestoneShow 3.5s ease-out forwards; }
         @keyframes milestoneShow {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-            25% { transform: translate(-50%, -50%) scale(1); }
-            85% { opacity: 1; }
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+            15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            25%  { transform: translate(-50%, -50%) scale(1); }
+            80%  { opacity: 1; }
             100% { opacity: 0; }
         }
 
-        /* Confetti */
+        /* ── CONFETTI ─────────────────────────────────────── */
         .confetti {
             position: fixed;
-            width: 10px;
-            height: 10px;
             top: -10px;
             z-index: 1999;
             pointer-events: none;
         }
-
         @keyframes confettiFall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; }
         }
 
-        /* Fullscreen styles */
-        .fullscreen-active {
-            cursor: none;
-        }
-
-        .fullscreen-active .controls-overlay {
-            opacity: 0;
-        }
-
-        .fullscreen-active:hover .controls-overlay {
-            opacity: 0.3;
-        }
+        /* ── FULLSCREEN ───────────────────────────────────── */
+        .fullscreen-active { cursor: none; }
+        .fullscreen-active .controls-overlay { opacity: 0; }
+        .fullscreen-active:hover .controls-overlay { opacity: 0.25; }
     </style>
 </head>
 <body>
-    <!-- Controls overlay -->
+    <!-- Controls -->
     <div class="controls-overlay">
-        <button class="control-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
-        <button class="control-btn" id="soundBtn" onclick="toggleSound()" title="Sound notifications">🔔</button>
-        <button class="control-btn" id="qrBtn" onclick="toggleQR()" title="Show QR code">📱</button>
+        <button class="control-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="Fullscreen (F)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 4V1h3M10 1h3v3M13 10v3h-3M4 13H1v-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="control-btn" id="soundBtn" onclick="toggleSound()" title="Sound (S)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5h2l3-3v10L4 9H2a1 1 0 01-1-1V6a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 4.5a4 4 0 010 5M8.5 6a2 2 0 010 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <button class="control-btn" id="qrBtn" onclick="toggleQR()" title="QR Code (Q)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="0.5" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="1" width="5" height="5" rx="0.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="8" width="5" height="5" rx="0.5" stroke="currentColor" stroke-width="1.5"/><rect x="8.5" y="8.5" width="1.5" height="1.5" fill="currentColor"/><rect x="11" y="8.5" width="1.5" height="1.5" fill="currentColor"/><rect x="8.5" y="11" width="1.5" height="1.5" fill="currentColor"/><rect x="11" y="11" width="1.5" height="1.5" fill="currentColor"/></svg>
+        </button>
     </div>
 
-    <!-- QR Code overlay -->
-    <div class="qr-overlay" id="qrOverlay">
-        <img id="qrImage" src="" alt="QR Code">
-        <p>Scan to donate</p>
-    </div>
-
-    <!-- Milestone celebration banner -->
+    <!-- Milestone banner -->
     <div class="milestone-banner" id="milestoneBanner"></div>
 
-    <div class="main-container">
-        <div class="thermometer-container">
-            <!-- Left Info Panel -->
-            <div class="info-panel left" id="leftPanel">
-                <div class="panel-title" id="leftPanelTitle">Gaza</div>
-                <div id="leftPanelContent">
-                    <div class="panel-item">
-                        <span class="label">1 month</span>
-                        <span class="value">$96,000</span>
-                    </div>
-                    <div class="panel-item">
-                        <span class="label">1 week</span>
-                        <span class="value">$22,800</span>
-                    </div>
-                    <div class="panel-item">
-                        <span class="label">2 days</span>
-                        <span class="value">$7,600</span>
-                    </div>
-                    <div class="panel-item">
-                        <span class="label">1 day</span>
-                        <span class="value">$3,800</span>
-                    </div>
-                </div>
-            </div>
+    <!-- Stage -->
+    <div class="stage" id="stage">
 
-            <!-- Right Info Panel -->
-            <div class="info-panel right" id="rightPanel">
-                <div class="panel-title" id="rightPanelTitle">Pakistan</div>
-                <div id="rightPanelContent">
-                    <div class="panel-item">
-                        <span class="label">Deep Tube Well</span>
-                        <span class="value">$11,300</span>
-                    </div>
-                    <div class="panel-item">
-                        <span class="label">Submersible Pump</span>
-                        <span class="value">$3,450</span>
-                    </div>
-                    <div class="panel-item">
-                        <span class="label">Solar Well</span>
-                        <span class="value">$1,300</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Thermometer wrapper -->
+        <div class="therm-wrapper">
+            <div class="thermometer-container" id="thermContainer">
 
-            <div class="goal">Goal: $<span id="goalAmount">50000</span></div>
-            <div class="thermometer">
-                <div class="stem">
-                    <div class="ticks" id="ticks"></div>
-                    <div class="stem-perct"></div>
+                <!-- Left Info Panel -->
+                <div class="info-panel left" id="leftPanel">
+                    <div class="panel-title" id="leftPanelTitle">Left Panel</div>
+                    <div id="leftPanelContent"></div>
                 </div>
-                <div class="bulb"></div>
-                
-                <div class="liquid-surface" id="liquidSurface">
-                    <div class="wave-container">
-                        <div class="wave one"></div>
-                        <div class="wave two"></div>
+
+                <!-- Right Info Panel -->
+                <div class="info-panel right" id="rightPanel">
+                    <div class="panel-title" id="rightPanelTitle">Right Panel</div>
+                    <div id="rightPanelContent"></div>
+                </div>
+
+                <div class="goal">Goal: $<span id="goalAmount">100,000</span></div>
+                <div class="thermometer">
+                    <!-- SVG thermometer: single connected shape, no junction artifacts -->
+                    <!--
+                        Geometry (SVG coords, y down from top, viewBox 0 0 210 560):
+                        Outer: stem x=77-133, top semicircle r=28 centre(105,32), y=4–455.5
+                               bulb circle centre(105,504) r=56
+                        Inner: stem x=84-126, top semicircle r=21 centre(105,32), y=11–459.7
+                               bulb circle centre(105,504) r=49
+                        Fill bottom = 553 (inner bulb floor), total fill height = 542
+                    -->
+                    <svg id="thermSvg" class="therm-svg" viewBox="0 0 210 560" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <clipPath id="thermInner">
+                          <path d="M105,11 A21,21,0,0,1,126,32 L126,459.7 A49,49,0,1,1,84,459.7 L84,32 A21,21,0,0,1,105,11 Z"/>
+                        </clipPath>
+                      </defs>
+                      <!-- Glass background tint -->
+                      <path d="M105,4 A28,28,0,0,1,133,32 L133,455.5 A56,56,0,1,1,77,455.5 L77,32 A28,28,0,0,1,105,4 Z"
+                            fill="rgba(255,255,255,0.06)" stroke="none"/>
+                      <!-- Liquid fill — single rect clipped to interior; grows from bottom -->
+                      <rect id="svgThermFill" x="0" y="553" width="210" height="0"
+                            fill="#4FC3F7" clip-path="url(#thermInner)"/>
+                      <!-- Glass outer border -->
+                      <path d="M105,4 A28,28,0,0,1,133,32 L133,455.5 A56,56,0,1,1,77,455.5 L77,32 A28,28,0,0,1,105,4 Z"
+                            fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="7"/>
+                      <!-- Inner glass highlight -->
+                      <path d="M105,11 A21,21,0,0,1,126,32 L126,459.7 A49,49,0,1,1,84,459.7 L84,32 A21,21,0,0,1,105,11 Z"
+                            fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="4"/>
+                      <!-- Tick marks (populated by createTicks()) -->
+                    </svg>
+                    <div class="liquid-surface" id="liquidSurface">
+                        <div class="wave-container">
+                            <div class="wave one"></div>
+                            <div class="wave two"></div>
+                        </div>
                     </div>
+                    <div class="percentage" id="percentage">0%</div>
+                    <div class="amount"     id="amount">$0</div>
                 </div>
-                
-                <div class="percentage" id="percentage">65%</div>
-                <div class="amount" id="amount">$33,000</div>
+                <div class="fundraiser-title" id="fundraiserTitle">Set Title</div>
             </div>
-            <div class="fundraiser-title" id="fundraiserTitle">HHRD Water for Life</div>
         </div>
+
+        <!-- QR Panel -->
+        <div class="qr-panel" id="qrPanel">
+            <div class="qr-card">
+                <div class="qr-card-label">Scan to Donate</div>
+                <div class="qr-canvas-wrap">
+                    <canvas id="qrCanvas" width="360" height="360"></canvas>
+                </div>
+                <div class="qr-card-cta">Give Now</div>
+                <div class="qr-card-url" id="qrUrlLabel"></div>
+            </div>
+        </div>
+
     </div>
 
+    <!-- QR code generator (qrcode-generator v1.4.4 by Kazuhiko Arase, MIT) -->
+    <script>var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,(function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1}))},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(n*r,o*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}}),s=0,v=String.fromCharCode(o[s]);h.write(r,n);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}((function(){return qrcode}));</script>
     <script>
-        // State variables
+    var QRGen = {
+        render: function(canvas, text) {
+            var ctx = canvas.getContext('2d');
+            if (!text) {
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+            try {
+                var qr = qrcode(0, 'M');
+                qr.addData(text);
+                qr.make();
+                var n = qr.getModuleCount();
+                var sz = canvas.width;
+                var cell = sz / n;
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, sz, sz);
+                ctx.fillStyle = '#000';
+                for (var r = 0; r < n; r++) {
+                    for (var c = 0; c < n; c++) {
+                        if (qr.isDark(r, c)) {
+                            ctx.fillRect(Math.floor(c * cell), Math.floor(r * cell), Math.ceil(cell), Math.ceil(cell));
+                        }
+                    }
+                }
+            } catch(e) {
+                console.error('QR generation failed', e);
+                ctx.fillStyle = '#eee';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#999';
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('QR unavailable', canvas.width/2, canvas.height/2);
+            }
+        }
+    };
+    </script>
+
+    <script>
+        // ── STATE ──────────────────────────────────────────
         var lastTotal = 0;
         var lastPercentage = 0;
         var soundEnabled = false;
         var qrVisible = false;
         var celebratedMilestones = [];
         var broadcastChannel = null;
+        var lastQRUrl = '';
 
-        // Initialize BroadcastChannel for instant updates
+        // ── BROADCAST ──────────────────────────────────────
         try {
             broadcastChannel = new BroadcastChannel('fundraiser-updates');
             broadcastChannel.onmessage = function(event) {
-                console.log('Received broadcast:', event.data);
-                if (event.data.type === 'resetMilestones') {
-                    celebratedMilestones = [];
-                } else if (event.data.type === 'clearUrl') {
-                    // Hide QR code when URL is cleared
-                    qrVisible = false;
-                    localStorage.setItem('displayQRVisible', false);
-                    document.getElementById('qrBtn').classList.remove('active');
-                    document.getElementById('qrOverlay').classList.remove('visible');
-                }
+                if (event.data.type === 'resetMilestones') celebratedMilestones = [];
+                else if (event.data.type === 'clearUrl') hideQRPanel();
                 updateAll();
             };
-        } catch (e) {
-            console.log('BroadcastChannel not supported, using localStorage polling');
-        }
+        } catch(e) {}
 
-        // Load settings from localStorage
-        function loadDisplaySettings() {
-            soundEnabled = localStorage.getItem('displaySoundEnabled') === 'true';
-            qrVisible = localStorage.getItem('displayQRVisible') === 'true';
-            var celebrated = localStorage.getItem('celebratedMilestones');
-            if (celebrated) {
-                try {
-                    celebratedMilestones = JSON.parse(celebrated);
-                } catch(e) {
-                    celebratedMilestones = [];
-                }
-            }
-
-            // Update button states
-            document.getElementById('soundBtn').classList.toggle('active', soundEnabled);
-            document.getElementById('qrBtn').classList.toggle('active', qrVisible);
-            if (qrVisible) {
-                document.getElementById('qrOverlay').classList.add('visible');
-                updateQRCode();
-            }
-        }
-
-        // Toggle fullscreen
+        // ── CONTROLS ───────────────────────────────────────
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
@@ -697,406 +562,298 @@
                 document.body.classList.remove('fullscreen-active');
             }
         }
-
-        // Toggle sound notifications
         function toggleSound() {
             soundEnabled = !soundEnabled;
             localStorage.setItem('displaySoundEnabled', soundEnabled);
             document.getElementById('soundBtn').classList.toggle('active', soundEnabled);
         }
-
-        // Toggle QR code display
         function toggleQR() {
             qrVisible = !qrVisible;
             localStorage.setItem('displayQRVisible', qrVisible);
             document.getElementById('qrBtn').classList.toggle('active', qrVisible);
-            document.getElementById('qrOverlay').classList.toggle('visible', qrVisible);
-            if (qrVisible) {
-                updateQRCode();
-            }
+            if (qrVisible) showQRPanel(); else hideQRPanel();
         }
 
-        // Update QR code based on campaign URL
-        function updateQRCode() {
-            var campaignUrl = localStorage.getItem('campaignUrl');
-            if (campaignUrl) {
-                // Use QR code API
-                var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(campaignUrl);
-                document.getElementById('qrImage').src = qrUrl;
-            } else {
-                document.getElementById('qrOverlay').classList.remove('visible');
+        function showQRPanel() {
+            var url = localStorage.getItem('campaignUrl');
+            if (!url) { qrVisible = false; return; }
+            var panel = document.getElementById('qrPanel');
+            panel.classList.add('visible');
+            document.getElementById('stage').classList.add('qr-open');
+            // Only re-render if URL changed
+            if (url !== lastQRUrl) {
+                lastQRUrl = url;
+                QRGen.render(document.getElementById('qrCanvas'), url);
+                var label = url.replace(/^https?:\/\/(www\.)?/,'');
+                if (label.length > 40) label = label.substring(0, 37) + '…';
+                document.getElementById('qrUrlLabel').textContent = label;
             }
         }
+        function hideQRPanel() {
+            qrVisible = false;
+            document.getElementById('qrBtn').classList.remove('active');
+            document.getElementById('qrPanel').classList.remove('visible');
+            document.getElementById('stage').classList.remove('qr-open');
+            localStorage.setItem('displayQRVisible', false);
+        }
 
-        // Play notification sound
-        function playNotificationSound() {
+        // ── SOUND ──────────────────────────────────────────
+        function playDonationSound() {
             if (!soundEnabled) return;
             try {
-                var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                var oscillator = audioContext.createOscillator();
-                var gainNode = audioContext.createGain();
+                var ac = new (window.AudioContext || window.webkitAudioContext)();
+                var osc = ac.createOscillator(), gain = ac.createGain();
+                osc.connect(gain); gain.connect(ac.destination);
+                osc.frequency.value = 880; osc.type = 'sine';
+                gain.gain.setValueAtTime(0.25, ac.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.5);
+                osc.start(ac.currentTime); osc.stop(ac.currentTime + 0.5);
+            } catch(e) {}
+        }
+        function playCelebrationSound() {
+            if (!soundEnabled) return;
+            try {
+                var ac = new (window.AudioContext || window.webkitAudioContext)();
+                [523,659,784,1047].forEach(function(f,i) {
+                    var o=ac.createOscillator(),g=ac.createGain();
+                    o.connect(g);g.connect(ac.destination);
+                    o.frequency.value=f;o.type='sine';
+                    g.gain.setValueAtTime(0.2,ac.currentTime+i*0.15);
+                    g.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+i*0.15+0.3);
+                    o.start(ac.currentTime+i*0.15);o.stop(ac.currentTime+i*0.15+0.3);
+                });
+            } catch(e) {}
+        }
 
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
+        // ── ANIMATIONS ─────────────────────────────────────
+        function animateChange() {
+            var a = document.getElementById('amount');
+            var t = document.getElementById('thermContainer');
+            a.classList.remove('amount-pulse'); t.classList.remove('therm-glow');
+            void a.offsetWidth;
+            a.classList.add('amount-pulse'); t.classList.add('therm-glow');
+            playDonationSound();
+        }
 
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
-            } catch(e) {
-                console.log('Sound not available');
+        function createConfetti() {
+            var cols = ['#F5A623','#4FC3F7','#66BB6A','#EF5350','#AB47BC','#FFA726'];
+            for (var i = 0; i < 60; i++) {
+                (function(delay) {
+                    setTimeout(function() {
+                        var el = document.createElement('div');
+                        el.className = 'confetti';
+                        el.style.left = Math.random() * 100 + 'vw';
+                        el.style.width = el.style.height = (Math.random() * 8 + 6) + 'px';
+                        el.style.backgroundColor = cols[Math.floor(Math.random()*cols.length)];
+                        el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                        el.style.animation = 'confettiFall ' + (Math.random()*2+2) + 's ease-out forwards';
+                        document.body.appendChild(el);
+                        setTimeout(function(){el.remove();}, 4500);
+                    }, delay);
+                })(i * 40);
             }
         }
 
-        // Animate amount change
-        function animateAmountChange() {
-            var amountEl = document.getElementById('amount');
-            var thermContainer = document.querySelector('.thermometer-container');
-
-            amountEl.classList.remove('amount-pulse');
-            thermContainer.classList.remove('thermometer-glow');
-
-            // Trigger reflow
-            void amountEl.offsetWidth;
-
-            amountEl.classList.add('amount-pulse');
-            thermContainer.classList.add('thermometer-glow');
-
-            playNotificationSound();
-        }
-
-        // Check and celebrate milestones
-        function checkMilestones(percentage) {
-            var milestones = [25, 50, 75, 100];
-            var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 200000;
-
-            milestones.forEach(function(milestone) {
-                if (percentage >= milestone && lastPercentage < milestone && !celebratedMilestones.includes(milestone)) {
-                    celebratedMilestones.push(milestone);
+        function checkMilestones(pct) {
+            [25,50,75,100].forEach(function(m) {
+                if (pct >= m && lastPercentage < m && celebratedMilestones.indexOf(m) === -1) {
+                    celebratedMilestones.push(m);
                     localStorage.setItem('celebratedMilestones', JSON.stringify(celebratedMilestones));
-                    celebrateMilestone(milestone, goal);
+                    var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 100000;
+                    var amt = (m/100)*goal;
+                    var banner = document.getElementById('milestoneBanner');
+                    banner.innerHTML = m === 100
+                        ? '<div style="color:#F5A623;font-size:0.6em;margin-bottom:6px">GOAL ACHIEVED</div>' + formatCurrency(goal)
+                        : '<div style="color:#F5A623;font-size:0.6em;margin-bottom:6px">' + m + '% MILESTONE</div>' + formatCurrency(amt);
+                    banner.classList.remove('show'); void banner.offsetWidth; banner.classList.add('show');
+                    createConfetti(); playCelebrationSound();
                 }
             });
         }
 
-        // Show milestone celebration
-        function celebrateMilestone(milestone, goal) {
-            var banner = document.getElementById('milestoneBanner');
-            var amount = (milestone / 100) * goal;
-
-            if (milestone === 100) {
-                banner.innerHTML = '🎉 GOAL REACHED! 🎉<br>' + formatCurrency(goal);
-            } else {
-                banner.innerHTML = '🎊 ' + milestone + '% Milestone! 🎊<br>' + formatCurrency(amount) + ' raised!';
-            }
-
-            banner.classList.remove('show');
-            void banner.offsetWidth;
-            banner.classList.add('show');
-
-            // Create confetti
-            createConfetti();
-
-            // Play celebration sound
-            if (soundEnabled) {
-                playCelebrationSound();
-            }
-        }
-
-        // Create confetti effect
-        function createConfetti() {
-            var colors = ['#667eea', '#764ba2', '#f39c12', '#e74c3c', '#27ae60', '#3498db'];
-            var confettiCount = 50;
-
-            for (var i = 0; i < confettiCount; i++) {
-                setTimeout(function() {
-                    var confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + 'vw';
-                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-                    confetti.style.width = (Math.random() * 10 + 5) + 'px';
-                    confetti.style.height = (Math.random() * 10 + 5) + 'px';
-                    confetti.style.animation = 'confettiFall ' + (Math.random() * 2 + 2) + 's linear forwards';
-
-                    document.body.appendChild(confetti);
-
-                    setTimeout(function() {
-                        confetti.remove();
-                    }, 4000);
-                }, i * 50);
-            }
-        }
-
-        // Play celebration sound
-        function playCelebrationSound() {
-            try {
-                var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                var notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
-
-                notes.forEach(function(freq, i) {
-                    var oscillator = audioContext.createOscillator();
-                    var gainNode = audioContext.createGain();
-
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-
-                    oscillator.frequency.value = freq;
-                    oscillator.type = 'sine';
-                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + i * 0.15);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.15 + 0.3);
-
-                    oscillator.start(audioContext.currentTime + i * 0.15);
-                    oscillator.stop(audioContext.currentTime + i * 0.15 + 0.3);
-                });
-            } catch(e) {
-                console.log('Celebration sound not available');
-            }
-        }
-
+        // ── TICKS ──────────────────────────────────────────
+        // Stem straight inner section: y=32 to y=459.7 (top to bottom in SVG)
+        var TICK_TOP = 32, TICK_BOT = 459.7;
         function createTicks() {
-            var ticksContainer = document.getElementById('ticks');
-            var tickCount = 10;
-            ticksContainer.innerHTML = '';
-            for (var i = 0; i <= tickCount; i++) {
-                var tick = document.createElement('div');
-                tick.className = 'tick';
-                tick.style.bottom = ((i / tickCount) * 100) + '%';
-                ticksContainer.appendChild(tick);
+            var svg = document.getElementById('thermSvg');
+            svg.querySelectorAll('.therm-tick').forEach(function(t) { t.remove(); });
+            for (var i = 0; i <= 10; i++) {
+                var y = TICK_TOP + i * (TICK_BOT - TICK_TOP) / 10;
+                var major = i % 5 === 0;
+                var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('class', 'therm-tick');
+                line.setAttribute('x1', 84); line.setAttribute('y1', y);
+                line.setAttribute('x2', major ? 100 : 93); line.setAttribute('y2', y);
+                line.setAttribute('stroke', major ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.25)');
+                line.setAttribute('stroke-width', 2);
+                svg.appendChild(line);
             }
         }
 
-        function formatCurrency(amount) {
-            return '$' + Math.round(amount).toLocaleString();
+        function formatCurrency(n) { return '$' + Math.round(n).toLocaleString(); }
+
+        // Mix hex colour 50% with white to produce the lighter wave-trough tint
+        function lightenColor(hex) {
+            hex = hex.replace('#', '');
+            if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+            var r = Math.round(parseInt(hex.slice(0,2),16) * 0.5 + 127.5);
+            var g = Math.round(parseInt(hex.slice(2,4),16) * 0.5 + 127.5);
+            var b = Math.round(parseInt(hex.slice(4,6),16) * 0.5 + 127.5);
+            return 'rgb('+r+','+g+','+b+')';
         }
 
-        var lastPanelConfig = '';
-        
-        function calculatePanelDimensions() {
-            var leftPanel = document.getElementById('leftPanel');
-            var rightPanel = document.getElementById('rightPanel');
-            
-            // Create a hash of current panel configuration to detect changes
-            var currentConfig = leftPanel.innerHTML + '|' + rightPanel.innerHTML + '|' + 
-                               leftPanel.style.display + '|' + rightPanel.style.display;
-            
-            // Only recalculate if panel content or visibility has changed
-            if (currentConfig !== lastPanelConfig) {
-                lastPanelConfig = currentConfig;
-                
-                // Reset both panels to auto width first
-                leftPanel.style.width = 'auto';
-                rightPanel.style.width = 'auto';
-                leftPanel.style.height = 'auto';
-                rightPanel.style.height = 'auto';
-                
-                setTimeout(function() {
-                    var leftWidth = leftPanel.offsetWidth;
-                    var rightWidth = rightPanel.offsetWidth;
-                    var leftHeight = leftPanel.offsetHeight;
-                    var rightHeight = rightPanel.offsetHeight;
-                    
-                    var maxWidth = Math.max(leftWidth, rightWidth);
-                    var maxHeight = Math.max(leftHeight, rightHeight);
-                    
-                    // Set both panels to the same dimensions
-                    if (leftPanel.style.display === 'block') {
-                        leftPanel.style.width = maxWidth + 'px';
-                        leftPanel.style.height = maxHeight + 'px';
-                        leftPanel.style.top = '30%';
-                    }
-                    
-                    if (rightPanel.style.display === 'block') {
-                        rightPanel.style.width = maxWidth + 'px';
-                        rightPanel.style.height = maxHeight + 'px';
-                        rightPanel.style.top = '30%';
-                    }
-                }, 100);
-            }
-        }
-
+        // ── CUSTOMIZATION ──────────────────────────────────
         function applyCustomization() {
             var saved = localStorage.getItem('thermometerCustomization');
-            if (saved) {
-                try {
-                    var customization = JSON.parse(saved);
-                    
-                    if (customization.backgroundColor) {
-                        document.body.style.backgroundColor = customization.backgroundColor;
-                    }
-                    
-                    if (customization.fillColor) {
-                        var stemPerct = document.querySelector('.stem-perct');
-                        var bulb = document.querySelector('.bulb');
-                        
-                        if (stemPerct) stemPerct.style.backgroundColor = customization.fillColor;
-                        if (bulb) bulb.style.backgroundColor = customization.fillColor;
-                        
-                        var existingStyle = document.getElementById('customStyles');
-                        if (existingStyle) existingStyle.remove();
-                        
-                        var customStyle = document.createElement('style');
-                        customStyle.id = 'customStyles';
-                        var newWaveColor = customization.fillColor.replace('#', '%23');
-                        customStyle.textContent = '.bulb:after { background: ' + customization.fillColor + ' !important; } .wave.one { background-image: url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 14 Q 6 6 12 14 T 24 14 T 36 14 T 48 14 V28 H0 Z" fill="' + newWaveColor + '"/></svg>\') !important; } .wave.two { background-image: url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 17 Q 6 8 12 17 T 24 17 T 36 17 T 48 17 V28 H0 Z" fill="' + newWaveColor + '"/></svg>\') !important; }';
-                        document.head.appendChild(customStyle);
-                    }
-                    
-                    var titleElement = document.querySelector('.fundraiser-title');
-                    if (titleElement) {
-                        if (customization.titleColor) {
-                            titleElement.style.color = customization.titleColor;
-                        }
-                        
-                        if (customization.titleFont) {
-                            titleElement.style.fontFamily = '"' + customization.titleFont + '", cursive, Arial, sans-serif';
-                        }
-                        
-                        if (customization.titleSize) {
-                            titleElement.style.fontSize = customization.titleSize + 'px';
-                        }
-                        
-                        if (customization.titleDistance !== undefined) {
-                            titleElement.style.bottom = '-' + customization.titleDistance + 'px';
-                        }
-                    }
-                    
-                    var goalElement = document.querySelector('.goal');
-                    if (goalElement && customization.goalSize) {
-                        goalElement.style.fontSize = customization.goalSize + 'px';
-                    }
-                    
-                } catch (e) {
-                    console.error('Error applying customization:', e);
+            if (!saved) return;
+            try {
+                var cx = JSON.parse(saved);
+                if (cx.backgroundColor) document.body.style.backgroundColor = cx.backgroundColor;
+                if (cx.fillColor) {
+                    var fill = cx.fillColor;
+                    document.documentElement.style.setProperty('--fill', fill);
+                    // Update SVG fill rect
+                    var svgFill = document.getElementById('svgThermFill');
+                    if (svgFill) svgFill.setAttribute('fill', fill);
+                    var enc = fill.replace('#','%23');
+                    var s = document.getElementById('customStyles');
+                    if (s) s.remove();
+                    s = document.createElement('style');
+                    s.id = 'customStyles';
+                    s.textContent = '.wave.one{background-image:url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 14 Q 6 6 12 14 T 24 14 T 36 14 T 48 14 V28 H0 Z" fill="'+enc+'"/></svg>\') !important}'
+                        + '.wave.two{background-image:url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" preserveAspectRatio="none"><path d="M0 17 Q 6 8 12 17 T 24 17 T 36 17 T 48 17 V28 H0 Z" fill="'+enc+'"/></svg>\') !important}';
+                    document.head.appendChild(s);
                 }
-            }
+                var title = document.querySelector('.fundraiser-title');
+                if (title) {
+                    if (cx.titleColor) title.style.color = cx.titleColor;
+                    if (cx.titleFont) title.style.fontFamily = '"' + cx.titleFont + '", cursive, sans-serif';
+                    if (cx.titleSize) title.style.fontSize = cx.titleSize + 'px';
+                    if (cx.titleDistance !== undefined) title.style.bottom = '-' + cx.titleDistance + 'px';
+                }
+            } catch(e) {}
         }
 
+        // ── PANELS ─────────────────────────────────────────
+        var lastPanelHash = '';
         function updatePanels() {
-            var sides = ['left', 'right'];
-            for (var s = 0; s < sides.length; s++) {
-                var side = sides[s];
-                var panelData = localStorage.getItem(side + 'Panel');
+            ['left','right'].forEach(function(side) {
+                var raw = localStorage.getItem(side + 'Panel');
                 var panel = document.getElementById(side + 'Panel');
-                var panelTitle = document.getElementById(side + 'PanelTitle');
-                var panelContent = document.getElementById(side + 'PanelContent');
-
-                if (panelData) {
-                    try {
-                        var data = JSON.parse(panelData);
-                        
-                        if (data.active && data.items && data.items.length > 0) {
-                            panel.style.display = 'block';
-                            
-                            panelTitle.textContent = data.title || (side.charAt(0).toUpperCase() + side.slice(1) + ' Panel');
-                            
-                            panelContent.innerHTML = '';
-                            for (var i = 0; i < data.items.length; i++) {
-                                var item = data.items[i];
-                                if (item.label && item.value) {
-                                    var itemDiv = document.createElement('div');
-                                    itemDiv.className = 'panel-item';
-                                    itemDiv.innerHTML = '<span class="label">' + item.label + '</span><span class="value">' + item.value + '</span>';
-                                    panelContent.appendChild(itemDiv);
-                                }
-                            }
-                        } else {
-                            panel.style.display = 'none';
-                        }
-                    } catch (e) {
-                        console.error('Error parsing ' + side + ' panel data:', e);
-                        panel.style.display = 'none';
-                    }
-                } else {
-                    panel.style.display = 'none';
-                }
-            }
-            
-            setTimeout(calculatePanelDimensions, 200);
+                var titleEl = document.getElementById(side + 'PanelTitle');
+                var contentEl = document.getElementById(side + 'PanelContent');
+                if (!raw) { panel.style.display = 'none'; return; }
+                try {
+                    var d = JSON.parse(raw);
+                    if (d.active && d.items && d.items.length > 0) {
+                        panel.style.display = 'block';
+                        titleEl.textContent = d.title || (side.charAt(0).toUpperCase() + side.slice(1));
+                        contentEl.innerHTML = d.items.map(function(it) {
+                            if (!it.label && !it.value) return '';
+                            return '<div class="panel-item"><span class="label">' + (it.label||'') + '</span><span class="value">' + (it.value||'') + '</span></div>';
+                        }).join('');
+                    } else { panel.style.display = 'none'; }
+                } catch(e) { panel.style.display = 'none'; }
+            });
         }
 
+        // ── THERMOMETER UPDATE ─────────────────────────────
         function updateThermometer() {
             var total = parseFloat(localStorage.getItem('fundraiserTotal'));
-            if (total === null || isNaN(total)) {
-                total = 32500;
-            }
-            var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 200000;
-            var percentage = (total / goal) * 100;
-            percentage = Math.min(percentage, 100);
+            if (isNaN(total)) total = 0;
+            var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 100000;
+            var pct = Math.min((total / goal) * 100, 100);
 
-            var title = localStorage.getItem('fundraiserTitle') || 'HHRD Water for Life';
+            var title = localStorage.getItem('fundraiserTitle') || 'Set Title';
             document.getElementById('fundraiserTitle').textContent = title;
-
-            document.querySelector('.stem-perct').style.height = percentage + '%';
             document.getElementById('goalAmount').textContent = goal.toLocaleString();
+            // SVG fill strategy:
+            // The bulb is always filled (mercury reservoir). The STEM level maps to 0–100%.
+            // Bulb inner: bottom y=553, top junction y=459.7  → always-filled height = 93.3
+            // Stem inner: y=459.7 (bottom) to y=32 (top)      → pct-driven height  = 427.7
+            var BULB_BOTTOM   = 553;
+            var STEM_JUNCTION = 459.7;  // where stem inner meets bulb inner
+            var STEM_TOP      = 11;     // very tip of inner clip path (semicircle apex)
+            var BULB_H = BULB_BOTTOM - STEM_JUNCTION;          // 93.3 — always filled
+            var STEM_H = STEM_JUNCTION - STEM_TOP;             // 448.7 — tracks pct
 
-            document.getElementById('percentage').textContent = Math.round(percentage) + '%';
+            var fillH  = BULB_H + (pct / 100) * STEM_H;
+            var fillEl = document.getElementById('svgThermFill');
+            if (fillEl) {
+                fillEl.setAttribute('y', BULB_BOTTOM - fillH);
+                fillEl.setAttribute('height', fillH);
+            }
+
+            document.getElementById('percentage').textContent = Math.round(pct) + '%';
             document.getElementById('amount').textContent = formatCurrency(total);
 
-            var newBottom = 98 + (percentage / 100) * 448;
-            document.getElementById('percentage').style.bottom = newBottom + 'px';
-            document.getElementById('amount').style.bottom = newBottom + 'px';
+            // Wave surface sits at the top of the stem fill
+            // At pct=0 it rests at the stem-bulb junction (100px from bottom)
+            var waveBtm = 100 + (pct / 100) * STEM_H;
+            var surf = document.getElementById('liquidSurface');
+            surf.style.bottom = waveBtm + 'px';
+            // Fade wave out before it enters the rounded top cap (stem inner top ≈ 528px from bottom)
+            // Wave is 28px tall, so it starts clipping at waveBtm ≈ 500.
+            // Hide it cleanly at 490 so the fill rect shows a solid full look.
+            // Fade wave out before it enters the rounded cap.
+            // Stem straight top ≈ 528px from bottom; wave is 28px tall, so it enters the curve at waveBtm≈500.
+            // Hide at 505 (~90% fill) so the fill rect shows a clean solid top.
+            surf.style.opacity = waveBtm > 505 ? '0' : '1';
 
-            var liquidSurfaceBottom = 108 + (percentage / 100) * 448;
-            document.getElementById('liquidSurface').style.bottom = liquidSurfaceBottom + 'px';
+            // Labels track the wave level; clamped above the bulb area (≥118px)
+            var labelBottom = Math.max(118, waveBtm - 10);
 
-            // Check for changes and animate
-            if (total > lastTotal && lastTotal > 0) {
-                animateAmountChange();
-                checkMilestones(percentage);
-            }
+            if (total > lastTotal && lastTotal > 0) { animateChange(); checkMilestones(pct); }
+            lastTotal = total; lastPercentage = pct;
 
-            // Update QR code if campaign URL changed
+            // Refresh QR if URL changed
             if (qrVisible) {
-                updateQRCode();
+                var url = localStorage.getItem('campaignUrl');
+                if (url && url !== lastQRUrl) showQRPanel();
+                if (!url) hideQRPanel();
             }
-
-            lastTotal = total;
-            lastPercentage = percentage;
         }
 
-        function updateAll() {
-            updateThermometer();
-            updatePanels();
-            applyCustomization();
-        }
+        function updateAll() { updateThermometer(); updatePanels(); applyCustomization(); }
 
+        // ── INIT ───────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', function() {
             createTicks();
-            loadDisplaySettings();
 
-            // Initialize lastTotal to prevent animation on first load
-            var initialTotal = parseFloat(localStorage.getItem('fundraiserTotal'));
-            if (!isNaN(initialTotal)) {
-                lastTotal = initialTotal;
-                var goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 200000;
-                lastPercentage = Math.min((initialTotal / goal) * 100, 100);
+            // Restore settings
+            soundEnabled = localStorage.getItem('displaySoundEnabled') === 'true';
+            document.getElementById('soundBtn').classList.toggle('active', soundEnabled);
+
+            var savedQR = localStorage.getItem('displayQRVisible') === 'true';
+            var hasCelebrated = localStorage.getItem('celebratedMilestones');
+            if (hasCelebrated) try { celebratedMilestones = JSON.parse(hasCelebrated); } catch(e){}
+
+            // Init lastTotal without triggering animation
+            var init = parseFloat(localStorage.getItem('fundraiserTotal'));
+            if (!isNaN(init)) {
+                lastTotal = init;
+                var g = parseFloat(localStorage.getItem('fundraiserGoal')) || 100000;
+                lastPercentage = Math.min((init/g)*100, 100);
             }
 
             updateAll();
 
-            // Use longer interval since BroadcastChannel provides instant updates
+            if (savedQR && localStorage.getItem('campaignUrl')) {
+                qrVisible = true;
+                document.getElementById('qrBtn').classList.add('active');
+                showQRPanel();
+            }
+
             setInterval(updateAll, 1000);
 
-            // Listen for fullscreen changes
             document.addEventListener('fullscreenchange', function() {
-                if (!document.fullscreenElement) {
-                    document.body.classList.remove('fullscreen-active');
-                }
+                if (!document.fullscreenElement) document.body.classList.remove('fullscreen-active');
             });
-
-            // Keyboard shortcuts
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'f' || e.key === 'F') {
-                    toggleFullscreen();
-                } else if (e.key === 's' || e.key === 'S') {
-                    toggleSound();
-                } else if (e.key === 'q' || e.key === 'Q') {
-                    toggleQR();
-                }
+                var k = e.key.toLowerCase();
+                if (k === 'f') toggleFullscreen();
+                else if (k === 's') toggleSound();
+                else if (k === 'q') toggleQR();
             });
         });
     </script>
