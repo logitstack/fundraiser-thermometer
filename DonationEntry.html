@@ -4,1671 +4,1416 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fundraiser Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brand: #2563EB;
+            --brand-light: #3B82F6;
+            --brand-dark: #1D4ED8;
+            --gold: #F59E0B;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg: #F1F5F9;
+            --surface: #FFFFFF;
+            --surface2: #F8FAFC;
+            --border: #E2E8F0;
+            --text: #0F172A;
+            --text2: #475569;
+            --text3: #94A3B8;
         }
 
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
             min-height: 100vh;
-            margin: 0;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            color: var(--text);
         }
 
-        .header {
-            text-align: center;
+        /* ── TOP BAR ────────────────────────────────────── */
+        .topbar {
+            background: var(--brand-dark);
+            background-image: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
             color: white;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .section {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .section-title {
-            color: #667eea;
-            font-weight: bold;
-            font-size: 1.3em;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .input-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #f8f9ff;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .input-row:last-child {
-            margin-bottom: 0;
-        }
-
-        label {
-            flex: 1;
-            color: #333;
-            font-weight: 600;
-            font-size: 1em;
-        }
-
-        input[type="text"], input[type="number"], input[type="url"], select {
-            width: 180px;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        input[type="text"]:focus, input[type="number"]:focus, input[type="url"]:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .wide-input {
-            width: 280px !important;
-        }
-
-        button {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 10px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .total {
-            font-weight: bold;
-            color: #667eea;
-            margin-left: 15px;
-            min-width: 100px;
-            text-align: right;
-            font-size: 1.1em;
-        }
-
-        #totalCollected {
-            font-size: 20px;
-            color: #27ae60;
-            font-weight: bold;
-        }
-
-        .donation-section {
-            grid-column: span 2;
-        }
-
-        .panels-section {
-            grid-column: span 2;
-        }
-
-        .panel-config {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .panel-editor {
-            background: #f8f9ff;
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #667eea;
-        }
-
-        .panel-header {
+            padding: 0 32px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .panel-title {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 1.1em;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(29,78,216,0.4);
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
+            z-index: 100;
         }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #667eea;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .panel-items {
-            display: none;
-        }
-
-        .panel-items.active {
-            display: block;
-        }
-
-        .panel-item {
+        .topbar-brand {
             display: flex;
-            margin-bottom: 10px;
+            align-items: center;
             gap: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
         }
-
-        .panel-item input {
-            flex: 1;
-            width: auto;
-        }
-
-        .add-item-btn {
-            background: #27ae60;
-            margin: 10px 0 0 0;
-        }
-
-        .remove-item-btn {
-            background: #e74c3c;
-            margin-left: 5px;
-            padding: 8px 12px;
-            font-size: 12px;
-        }
-
-        .status-bar {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        .status-bar h3 {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .quick-btn {
-            background: #f39c12;
-            margin: 0;
-        }
-
-        .preset-btn {
-            background: #f39c12;
-            margin: 0 5px 5px 0;
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        .preset-btn:hover {
-            background: #e67e22;
-        }
-
-        input[type="color"] {
-            width: 50px;
-            height: 40px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        input[type="range"] {
-            width: 120px;
-        }
-
-        .auto-sync-status {
-            color: #27ae60;
-            font-size: 12px;
-            font-weight: normal;
-            margin-left: 15px;
-            display: none;
-        }
-
-        .auto-sync-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #27ae60;
+        .topbar-brand span { opacity: 0.55; font-weight: 400; margin-left: 4px; font-size: 13px; }
+        .topbar-actions { display: flex; gap: 8px; }
+        .topbar-btn {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s;
+        }
+        .topbar-btn:hover { background: rgba(255,255,255,0.22); }
+        .topbar-btn.launch { background: var(--gold); border-color: var(--gold); color: #1a1a1a; font-weight: 700; }
+        .topbar-btn.launch:hover { background: #fbbf24; }
+
+        /* ── LAYOUT ─────────────────────────────────────── */
+        .page { max-width: 1280px; margin: 0 auto; padding: 28px 24px 60px; }
+
+        /* ── LIVE TOTAL HERO ─────────────────────────────── */
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
+            border-radius: 20px;
+            padding: 28px 32px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(37,99,235,0.3);
+        }
+        .hero-left h2 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+            margin-bottom: 6px;
+        }
+        .hero-total {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+        .hero-meta {
+            margin-top: 8px;
             font-size: 14px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            opacity: 0.65;
+        }
+        .hero-right {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .hero-pct {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: #93C5FD;
+        }
+        .hero-pct-label { font-size: 13px; opacity: 0.6; margin-top: 2px; }
+        .hero-progress {
+            width: 200px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 99px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .hero-progress-fill {
+            height: 100%;
+            background: #93C5FD;
+            border-radius: 99px;
+            transition: width 0.6s ease;
         }
 
-        .sync-status {
-            display: inline-flex;
+        /* ── GRID ────────────────────────────────────────── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .span-2 { grid-column: span 2; }
+        .span-3 { grid-column: span 3; }
+
+        /* ── CARD ────────────────────────────────────────── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+        }
+        .card-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text3);
+            margin-bottom: 20px;
+            display: flex;
             align-items: center;
             gap: 8px;
-            margin-left: 10px;
+        }
+        .card-title-icon {
+            width: 24px; height: 24px;
+            background: var(--bg);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+        }
+
+        /* ── FORM ELEMENTS ───────────────────────────────── */
+        .field { margin-bottom: 14px; }
+        .field:last-child { margin-bottom: 0; }
+        .field label {
+            display: block;
             font-size: 12px;
+            font-weight: 600;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+        .field-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        select {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text);
+            background: var(--surface);
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+        input:focus, select:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
 
-        .sync-status .icon {
-            width: 16px;
-            height: 16px;
+        /* ── BUTTONS ─────────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--brand); color: white; }
+        .btn-primary:hover { background: var(--brand-light); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { opacity: 0.9; }
+        .btn-danger  { background: var(--danger); color: white; }
+        .btn-danger:hover  { opacity: 0.9; }
+        .btn-warning { background: var(--warning); color: #1a1a1a; }
+        .btn-warning:hover { opacity: 0.9; }
+        .btn-ghost   { background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+        .btn-ghost:hover { background: var(--border); }
+        .btn-sm { padding: 6px 11px; font-size: 12px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ── DONATION ROW ─────────────────────────────────── */
+        .donation-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: border-color 0.15s;
+        }
+        .donation-row:last-child { margin-bottom: 0; }
+        .donation-row:focus-within { border-color: var(--brand); }
+        .donation-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            width: 72px;
+            flex-shrink: 0;
+        }
+        .donation-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .donation-input:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .donation-total {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand);
+            width: 90px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .donation-icon {
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
         }
 
-        .sync-status.success { color: #27ae60; }
-        .sync-status.error { color: #e74c3c; }
-        .sync-status.syncing { color: #f39c12; }
-
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
+        /* ── TOGGLE SWITCH ───────────────────────────────── */
+        .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+        .toggle {
+            position: relative;
+            width: 44px; height: 24px;
+            flex-shrink: 0;
+        }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-track {
+            position: absolute; inset: 0;
+            background: var(--border);
+            border-radius: 99px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            width: 18px; height: 18px;
+            left: 3px; top: 3px;
+            background: white;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
+        .toggle input:checked + .toggle-track { background: var(--brand); }
+        .toggle input:checked + .toggle-track::after { transform: translateX(20px); }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* ── PANEL EDITOR ────────────────────────────────── */
+        .panel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .panel-editor {
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
         }
+        .panel-editor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .panel-editor-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .panel-items { display: none; }
+        .panel-items.active { display: block; }
+        .panel-item-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .panel-item-row input { flex: 1; width: auto; }
+        .add-item-btn { margin-top: 4px; }
 
-        .last-sync-info {
-            font-size: 11px;
-            color: #888;
-            margin-top: 5px;
+        /* ── COLOR PICKERS ───────────────────────────────── */
+        .color-field { display: flex; align-items: center; gap: 10px; }
+        input[type="color"] {
+            width: 38px; height: 36px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+        .color-hex {
+            width: 100px;
+            flex: none;
+        }
+        input[type="range"] {
+            flex: 1;
+            accent-color: var(--brand);
+        }
+        .range-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .range-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--brand);
+            width: 46px;
             text-align: right;
         }
 
-        .reset-btn {
-            background: #e74c3c !important;
-            margin-left: 10px;
+        /* ── PRESET CHIPS ────────────────────────────────── */
+        .preset-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .preset-chip {
+            padding: 5px 13px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text2);
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        .preset-chip:hover { border-color: var(--brand); color: var(--brand); background: rgba(37,99,235,0.06); }
+
+        /* ── QR SECTION ──────────────────────────────────── */
+        .qr-preview-wrap {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .qr-preview-box {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            flex-shrink: 0;
+        }
+        #qrPreviewCanvas {
+            display: block;
+            width: 120px;
+            height: 120px;
+            image-rendering: pixelated;
+        }
+        .qr-config { flex: 1; }
+        .qr-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 99px;
+        }
+        .qr-status.active { background: rgba(16,185,129,0.12); color: var(--success); }
+        .qr-status.inactive { background: rgba(148,163,184,0.15); color: var(--text3); }
+
+        /* ── STATUS INDICATORS ───────────────────────────── */
+        .sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            padding: 3px 9px;
+            border-radius: 99px;
+            font-weight: 600;
+        }
+        .sync-badge.syncing { background: rgba(245,158,11,0.12); color: var(--warning); }
+        .sync-badge.success { background: rgba(16,185,129,0.12); color: var(--success); }
+        .sync-badge.error   { background: rgba(239,68,68,0.12); color: var(--danger); }
+        .spinner {
+            width: 12px; height: 12px;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .last-sync-text { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+        /* ── ACTIONS BAR ─────────────────────────────────── */
+        .actions-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 24px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .actions-bar-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text3);
+            margin-right: 4px;
+            white-space: nowrap;
         }
 
-        .reset-btn:hover {
-            background: #c0392b !important;
+        /* ── TOAST ───────────────────────────────────────── */
+        .toast {
+            position: fixed;
+            top: 76px;
+            right: 20px;
+            background: #0F172A;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 0.2s, transform 0.2s;
+            pointer-events: none;
+            max-width: 300px;
         }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success::before { content: '✓  '; color: var(--success); }
+        .toast.error::before   { content: '✗  '; color: var(--danger); }
+        .toast.info::before    { content: '·  '; color: #93C5FD; }
 
-        .danger-zone {
-            border-left-color: #e74c3c !important;
-            background: #fdf2f2 !important;
+        /* ── RESPONSIVE ──────────────────────────────────── */
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .panel-grid { grid-template-columns: 1fr; }
+            .span-2, .span-3 { grid-column: span 1; }
+            .hero { flex-direction: column; text-align: center; }
+            .hero-right { text-align: center; }
+            .hero-progress { margin: 8px auto 0; }
         }
-
-        .settings-btn {
-            background: #9b59b6;
-        }
-
-        .settings-btn:hover {
-            background: #8e44ad;
-        }
-
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .donation-section, .panels-section {
-                grid-column: span 1;
-            }
-            
-            .panel-config {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 600px) {
+            .topbar { padding: 0 16px; }
+            .page { padding: 16px 12px 40px; }
+            .hero-total { font-size: 36px; }
+            .topbar-btn span { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎯 Fundraiser Control Panel</h1>
-            <p>Manage your thermometer display in real-time</p>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="topbar-brand">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="opacity:0.85"><rect x="6.5" y="1" width="3" height="9" rx="1.5" fill="white"/><circle cx="8" cy="13" r="2.5" fill="white"/><rect x="7" y="5" width="2" height="5" fill="#1D4ED8"/></svg>
+            Fundraiser Control
+            <span>Panel</span>
         </div>
-
-        <div class="grid">
-            <!-- Configuration Section -->
-            <div class="section">
-                <div class="section-title">⚙️ Basic Configuration</div>
-                <div class="input-row">
-                    <label>Fundraiser Title:</label>
-                    <input type="text" id="titleInput" placeholder="Enter title...">
-                    <button onclick="setTitle()">Set Title</button>
-                </div>
-                <div class="input-row">
-                    <label>Goal Amount:</label>
-                    <input type="number" id="goalInput" min="0" step="0.01" placeholder="50000">
-                    <button onclick="setGoal()">Set Goal</button>
-                </div>
-            </div>
-
-            <!-- Totals Section -->
-            <div class="section">
-                <div class="section-title">📊 Current Status</div>
-                <div class="input-row">
-                    <label>Total Collected:</label>
-                    <span id="totalCollected" class="total">$0</span>
-                </div>
-                <div class="input-row">
-                    <label>Override Total:</label>
-                    <input type="number" id="overrideTotal" step="0.01" placeholder="0.00">
-                    <button onclick="applyOverride()">Apply</button>
-                </div>
-                <div class="input-row">
-                    <label>Campaign URL:</label>
-                    <input type="url" id="campaignUrl" class="wide-input" placeholder="https://fundraise.hhrd.org/...">
-                    <button onclick="syncFromCampaign()" id="syncButton">Sync</button>
-                    <button onclick="clearCampaignUrl()" class="reset-btn" id="clearUrlBtn" style="display: none;">Clear</button>
-                </div>
-                <div class="input-row">
-                    <label>Auto-sync every minute:</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="autoSyncToggle" onchange="toggleAutoSync()">
-                        <span class="slider"></span>
-                    </label>
-                    <span id="autoSyncStatus" class="auto-sync-status"></span>
-                    <span id="syncStatus" class="sync-status"></span>
-                </div>
-                <div id="lastSyncInfo" class="last-sync-info" style="display: none;"></div>
-            </div>
-
-            <!-- Donation Inputs Section -->
-            <div class="section donation-section">
-                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>💰 Donation Inputs</span>
-                    <button class="reset-btn" onclick="resetDonationInputs()" style="font-size: 12px; padding: 8px 12px;">Reset All</button>
-                </div>
-                <div class="input-row">
-                    <label>Cash:</label>
-                    <input type="number" id="cashInput" step="0.01" placeholder="0.00">
-                    <span id="cashTotal" class="total">$0.00</span>
-                </div>
-                <div class="input-row">
-                    <label>Check:</label>
-                    <input type="number" id="checkInput" step="0.01" placeholder="0.00">
-                    <span id="checkTotal" class="total">$0.00</span>
-                </div>
-                <div class="input-row">
-                    <label>Pledges:</label>
-                    <input type="number" id="pledgesInput" step="0.01" placeholder="0.00">
-                    <span id="pledgesTotal" class="total">$0.00</span>
-                </div>
-                <div class="input-row">
-                    <label>Square:</label>
-                    <input type="number" id="squareInput" step="0.01" placeholder="0.00">
-                    <span id="squareTotal" class="total">$0.00</span>
-                </div>
-                <div class="input-row">
-                    <label>Website:</label>
-                    <input type="number" id="websiteInput" step="0.01" placeholder="0.00">
-                    <span id="websiteTotal" class="total">$0.00</span>
-                </div>
-            </div>
-
-            <!-- Info Panels Configuration -->
-            <div class="section panels-section">
-                <div class="section-title">📋 Information Panels</div>
-                <p style="color: #666; margin-bottom: 20px;">Configure the information panels that appear beside your thermometer.</p>
-                
-                <div class="panel-config">
-                    <!-- Left Panel -->
-                    <div class="panel-editor">
-                        <div class="panel-header">
-                            <span class="panel-title">Left Panel</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="leftPanelToggle" onchange="togglePanel('left')">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div class="panel-items" id="leftPanelItems">
-                            <div class="input-row">
-                                <label>Panel Title:</label>
-                                <input type="text" id="leftPanelTitle" placeholder="Panel Title" oninput="savePanelData('left')">
-                            </div>
-                            <div id="leftPanelContent">
-                                <!-- Dynamic items will be added here -->
-                            </div>
-                            <button class="add-item-btn" onclick="addPanelItem('left')">+ Add Item</button>
-                        </div>
-                    </div>
-
-                    <!-- Right Panel -->
-                    <div class="panel-editor">
-                        <div class="panel-header">
-                            <span class="panel-title">Right Panel</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="rightPanelToggle" onchange="togglePanel('right')">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div class="panel-items" id="rightPanelItems">
-                            <div class="input-row">
-                                <label>Panel Title:</label>
-                                <input type="text" id="rightPanelTitle" placeholder="Panel Title" oninput="savePanelData('right')">
-                            </div>
-                            <div id="rightPanelContent">
-                                <!-- Dynamic items will be added here -->
-                            </div>
-                            <button class="add-item-btn" onclick="addPanelItem('right')">+ Add Item</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Customization Section -->
-            <div class="section panels-section">
-                <div class="section-title">🎨 Appearance Customization</div>
-                <p style="color: #666; margin-bottom: 20px;">Customize the look and feel of your thermometer display.</p>
-                
-                <div class="panel-config">
-                    <!-- Colors -->
-                    <div class="panel-editor">
-                        <div class="panel-header">
-                            <span class="panel-title">Colors</span>
-                        </div>
-                        
-                        <div class="input-row">
-                            <label>Background Color:</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="color" id="backgroundColorPicker" value="#01243c">
-                                <input type="text" id="backgroundColorHex" placeholder="#01243c" style="width: 100px;" maxlength="7">
-                            </div>
-                        </div>
-                        
-                        <div class="input-row">
-                            <label>Thermometer Fill:</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="color" id="fillColorPicker" value="#8ddbf5">
-                                <input type="text" id="fillColorHex" placeholder="#8ddbf5" style="width: 100px;" maxlength="7">
-                            </div>
-                        </div>
-                        
-                        <div class="input-row">
-                            <label>Title Color:</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="color" id="titleColorPicker" value="#efab3a">
-                                <input type="text" id="titleColorHex" placeholder="#efab3a" style="width: 100px;" maxlength="7">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Typography & Position -->
-                    <div class="panel-editor">
-                        <div class="panel-header">
-                            <span class="panel-title">Typography & Position</span>
-                        </div>
-                        
-                        <div class="input-row">
-                            <label>Title Font:</label>
-                            <select id="titleFontSelect" style="width: 200px;">
-                                <option value="Dancing Script">Dancing Script (Default)</option>
-                                <option value="Anton">Anton (Bold)</option>
-                                <option value="Moontime">Moontime (Decorative)</option>
-                                <option value="Georgia">Georgia (Classic)</option>
-                                <option value="Times New Roman">Times New Roman</option>
-                                <option value="Arial">Arial (Clean)</option>
-                                <option value="Helvetica">Helvetica</option>
-                                <option value="Impact">Impact (Bold)</option>
-                                <option value="Trebuchet MS">Trebuchet MS</option>
-                                <option value="Verdana">Verdana</option>
-                                <option value="Comic Sans MS">Comic Sans MS (Fun)</option>
-                                <option value="Courier New">Courier New (Mono)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-row">
-                            <label>Title Size:</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="range" id="titleSizeSlider" min="20" max="80" value="45" oninput="updateSliderValue('titleSize')">
-                                <span id="titleSizeValue" style="font-weight: bold; width: 40px;">45px</span>
-                            </div>
-                        </div>
-
-                        <div class="input-row">
-                            <label>Title Distance:</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="range" id="titleDistanceSlider" min="20" max="200" value="80" oninput="updateSliderValue('titleDistance')">
-                                <span id="titleDistanceValue" style="font-weight: bold; width: 50px;">80px</span>
-                            </div>
-                        </div>
-
-                        <div class="input-row">
-                            <label style="margin-bottom: 0;">Quick Presets:</label>
-                        </div>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
-                            <button class="preset-btn" onclick="applyPreset('modern')">Modern</button>
-                            <button class="preset-btn" onclick="applyPreset('classic')">Classic</button>
-                            <button class="preset-btn" onclick="applyPreset('fun')">Fun</button>
-                            <button class="preset-btn" onclick="applyPreset('corporate')">Corporate</button>
-                            <button class="preset-btn" onclick="applyPreset('reset')">Reset</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 15px; text-align: center;">
-                    <button style="background: #27ae60; margin: 0;" onclick="applyCustomization()">Apply All Changes</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="status-bar">
-            <h3>Quick Actions</h3>
-            <div class="quick-actions">
-                <button class="quick-btn" onclick="clearAllData()">🗑️ Clear All Data</button>
-                <button class="quick-btn" onclick="exportData()">📤 Export CSV</button>
-                <button class="quick-btn settings-btn" onclick="exportSettings()">💾 Export Settings</button>
-                <button class="quick-btn settings-btn" onclick="importSettings()">📂 Import Settings</button>
-                <button class="quick-btn" onclick="resetMilestones()">🎊 Reset Milestones</button>
-                <button class="quick-btn" onclick="window.open('ThermDisplayReal.html', '_blank')">🌡️ Open Display</button>
-            </div>
+        <div class="topbar-actions">
+            <button class="topbar-btn" onclick="exportData()">Export CSV</button>
+            <button class="topbar-btn" onclick="exportSettings()">Backup</button>
+            <button class="topbar-btn" onclick="importSettings()">Restore</button>
+            <button class="topbar-btn launch" onclick="window.open('ThermDisplayReal.html','_blank')">Open Display</button>
         </div>
     </div>
 
-    <script>
-        // Global variables
-        let categories = ['cash', 'check', 'pledges', 'square', 'website'];
-        let totals = {};
-        let panelItemCount = { left: 0, right: 0 };
-        let transactions = []; // Store individual transactions
-
-        // Auto-sync variables
-        let autoSyncInterval = null;
-        let autoSyncEnabled = false;
-        let lastSyncTime = null;
-        let syncRetryCount = 0;
-        const MAX_SYNC_RETRIES = 3;
-
-        // BroadcastChannel for instant updates between windows
-        let broadcastChannel = null;
-        try {
-            broadcastChannel = new BroadcastChannel('fundraiser-updates');
-        } catch (e) {
-            console.log('BroadcastChannel not supported, falling back to localStorage polling');
-        }
-
-        // Broadcast update to other windows
-        function broadcastUpdate(type, data) {
-            if (broadcastChannel) {
-                broadcastChannel.postMessage({ type, data, timestamp: Date.now() });
-            }
-        }
-
-        // Load transactions from localStorage
-        function loadTransactions() {
-            const savedTransactions = localStorage.getItem('transactions');
-            if (savedTransactions) {
-                try {
-                    transactions = JSON.parse(savedTransactions);
-                } catch (e) {
-                    console.error('Error loading transactions:', e);
-                    transactions = [];
-                }
-            }
-        }
-
-        // Save transactions to localStorage
-        function saveTransactions() {
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-        }
-
-        // Add a transaction record
-        function addTransaction(type, amount, timestamp = null) {
-            if (!timestamp) {
-                timestamp = new Date().toISOString();
-            }
-            transactions.push({
-                type: type,
-                amount: amount,
-                timestamp: timestamp
-            });
-            saveTransactions();
-        }
-
-        // Format number as currency (rounded to nearest dollar)
-        function formatCurrency(number) {
-            return '$' + Math.round(number).toLocaleString();
-        }
-
-        // Update total display
-        function updateTotal() {
-            let total = Object.values(totals).reduce((a, b) => a + b, 0);
-            let storedOverride = parseFloat(localStorage.getItem('fundraiserTotal'));
-            
-            if (storedOverride !== null && !isNaN(storedOverride)) {
-                document.getElementById('totalCollected').textContent = formatCurrency(storedOverride);
-            } else {
-                document.getElementById('totalCollected').textContent = formatCurrency(total);
-                localStorage.setItem('fundraiserTotal', total);
-            }
-        }
-
-        // Basic configuration functions
-        function setTitle() {
-            let title = document.getElementById('titleInput').value.trim();
-            if (title) {
-                localStorage.setItem('fundraiserTitle', title);
-                document.getElementById('titleInput').value = '';
-                broadcastUpdate('title', { title: title });
-                alert('Title updated!');
-            }
-        }
-
-        function setGoal() {
-            let goal = parseFloat(document.getElementById('goalInput').value) || 0;
-            if (goal > 0) {
-                localStorage.setItem('fundraiserGoal', goal);
-                document.getElementById('goalInput').value = '';
-                // Reset celebrated milestones when goal changes
-                localStorage.removeItem('celebratedMilestones');
-                broadcastUpdate('goal', { goal: goal });
-                alert('Goal updated!');
-            }
-        }
-
-        function applyOverride() {
-            let override = parseFloat(document.getElementById('overrideTotal').value);
-            if (!isNaN(override)) {
-                // Record the override as a transaction
-                const currentTotal = Object.values(totals).reduce((a, b) => a + b, 0);
-                const difference = override - currentTotal;
-                if (difference !== 0) {
-                    addTransaction('override', difference);
-                }
-
-                localStorage.setItem('fundraiserTotal', override);
-                document.getElementById('totalCollected').textContent = formatCurrency(override);
-                document.getElementById('overrideTotal').value = '';
-
-                // Broadcast update to display window
-                broadcastUpdate('override', { total: override });
-
-                alert('Total overridden to ' + formatCurrency(override) + '!');
-            }
-        }
-
-        // Show subtle notification for auto-sync updates
-        function showAutoSyncNotification(amount) {
-            let notification = document.getElementById('autoSyncNotification');
-            if (!notification) {
-                notification = document.createElement('div');
-                notification.id = 'autoSyncNotification';
-                notification.className = 'auto-sync-notification';
-                document.body.appendChild(notification);
-            }
-            
-            notification.textContent = `Website donations synced: ${formatCurrency(amount)}`;
-            notification.style.opacity = '1';
-            
-            setTimeout(() => {
-                notification.style.opacity = '0';
-            }, 3000);
-        }
-
-        // Show auto-sync status message
-        function showAutoSyncStatus(message) {
-            const statusElement = document.getElementById('autoSyncStatus');
-            if (statusElement) {
-                statusElement.textContent = message;
-                statusElement.style.display = 'inline';
-                setTimeout(() => {
-                    statusElement.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        // Update sync status indicator
-        function updateSyncStatus(status, message = '') {
-            const statusEl = document.getElementById('syncStatus');
-            const lastSyncEl = document.getElementById('lastSyncInfo');
-
-            if (!statusEl) return;
-
-            switch(status) {
-                case 'syncing':
-                    statusEl.className = 'sync-status syncing';
-                    statusEl.innerHTML = '<div class="spinner"></div> Syncing...';
-                    break;
-                case 'success':
-                    statusEl.className = 'sync-status success';
-                    statusEl.innerHTML = '✓ Synced';
-                    lastSyncTime = new Date();
-                    localStorage.setItem('lastSyncTime', lastSyncTime.toISOString());
-                    syncRetryCount = 0;
-                    updateLastSyncDisplay();
-                    setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
-                    break;
-                case 'error':
-                    statusEl.className = 'sync-status error';
-                    statusEl.innerHTML = '✗ ' + (message || 'Failed');
-                    setTimeout(() => { statusEl.innerHTML = ''; }, 5000);
-                    break;
-                default:
-                    statusEl.innerHTML = '';
-            }
-        }
-
-        // Update last sync time display
-        function updateLastSyncDisplay() {
-            const lastSyncEl = document.getElementById('lastSyncInfo');
-            if (!lastSyncEl || !lastSyncTime) return;
-
-            const now = new Date();
-            const diffMs = now - lastSyncTime;
-            const diffMins = Math.floor(diffMs / 60000);
-
-            let timeText;
-            if (diffMins < 1) {
-                timeText = 'just now';
-            } else if (diffMins === 1) {
-                timeText = '1 minute ago';
-            } else if (diffMins < 60) {
-                timeText = `${diffMins} minutes ago`;
-            } else {
-                const diffHours = Math.floor(diffMins / 60);
-                timeText = diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
-            }
-
-            lastSyncEl.textContent = `Last synced: ${timeText}`;
-            lastSyncEl.style.display = 'block';
-        }
-
-        // Reset all donation inputs to zero
-        function resetDonationInputs() {
-            if (!confirm('Are you sure you want to reset all donation totals to $0? This will clear Cash, Check, Pledges, Square, and Website totals. Transaction history will be preserved.')) {
-                return;
-            }
-
-            // Record the reset as a transaction
-            const currentTotal = Object.values(totals).reduce((a, b) => a + b, 0);
-            if (currentTotal > 0) {
-                addTransaction('reset', -currentTotal);
-            }
-
-            // Reset all category totals
-            categories.forEach(category => {
-                totals[category] = 0;
-                document.getElementById(`${category}Total`).textContent = formatCurrency(0);
-                localStorage.setItem(`${category}Total`, 0);
-            });
-
-            // Update the main total
-            localStorage.setItem('fundraiserTotal', 0);
-            updateTotal();
-
-            // Broadcast the reset
-            broadcastUpdate('reset', { total: 0 });
-
-            alert('All donation totals have been reset to $0.');
-        }
-
-        // Export all settings (for backup)
-        function exportSettings() {
-            const settings = {
-                version: '1.0',
-                exportDate: new Date().toISOString(),
-                fundraiserTitle: localStorage.getItem('fundraiserTitle'),
-                fundraiserGoal: localStorage.getItem('fundraiserGoal'),
-                campaignUrl: localStorage.getItem('campaignUrl'),
-                thermometerCustomization: localStorage.getItem('thermometerCustomization'),
-                leftPanel: localStorage.getItem('leftPanel'),
-                rightPanel: localStorage.getItem('rightPanel'),
-                categoryTotals: {},
-                transactions: transactions
-            };
-
-            categories.forEach(cat => {
-                settings.categoryTotals[cat] = localStorage.getItem(`${cat}Total`);
-            });
-
-            const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-
-            const now = new Date();
-            const dateStr = now.toISOString().split('T')[0];
-            link.download = `fundraiser-settings-${dateStr}.json`;
-            link.click();
-
-            alert('Settings exported successfully!');
-        }
-
-        // Import settings from backup
-        function importSettings() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const settings = JSON.parse(e.target.result);
-
-                        if (!settings.version) {
-                            throw new Error('Invalid settings file format');
-                        }
-
-                        if (settings.fundraiserTitle) localStorage.setItem('fundraiserTitle', settings.fundraiserTitle);
-                        if (settings.fundraiserGoal) localStorage.setItem('fundraiserGoal', settings.fundraiserGoal);
-                        if (settings.campaignUrl) localStorage.setItem('campaignUrl', settings.campaignUrl);
-                        if (settings.thermometerCustomization) localStorage.setItem('thermometerCustomization', settings.thermometerCustomization);
-                        if (settings.leftPanel) localStorage.setItem('leftPanel', settings.leftPanel);
-                        if (settings.rightPanel) localStorage.setItem('rightPanel', settings.rightPanel);
-
-                        if (settings.categoryTotals) {
-                            Object.keys(settings.categoryTotals).forEach(cat => {
-                                if (settings.categoryTotals[cat]) {
-                                    localStorage.setItem(`${cat}Total`, settings.categoryTotals[cat]);
-                                }
-                            });
-                        }
-
-                        if (settings.transactions && Array.isArray(settings.transactions)) {
-                            transactions = settings.transactions;
-                            saveTransactions();
-                        }
-
-                        alert('Settings imported successfully! Page will reload.');
-                        location.reload();
-                    } catch (error) {
-                        alert('Error importing settings: ' + error.message);
-                    }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
-        }
-
-        // Modified sync function - now updates Website donations instead of total
-        async function syncFromCampaign(isAutoSync = false) {
-            const campaignUrl = document.getElementById('campaignUrl').value.trim();
-            if (!campaignUrl) {
-                if (!isAutoSync) {
-                    alert('Please enter a campaign URL');
-                } else {
-                    console.log('Auto-sync: No campaign URL found');
-                }
-                return;
-            }
-
-            if (!campaignUrl.toLowerCase().includes('fundraise.hhrd.org')) {
-                if (!isAutoSync) {
-                    alert('Please enter a valid HHRD fundraising URL');
-                } else {
-                    console.log('Auto-sync: Invalid HHRD URL');
-                }
-                return;
-            }
-
-            const syncButton = document.getElementById('syncButton');
-            const originalText = syncButton.textContent;
-
-            console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} starting for: ${campaignUrl}`);
-            updateSyncStatus('syncing');
-
-            try {
-                if (!isAutoSync) {
-                    syncButton.textContent = 'Syncing...';
-                    syncButton.disabled = true;
-                }
-
-                // Try multiple CORS proxies in case one is down
-                const proxies = [
-                    `https://api.allorigins.win/raw?url=${encodeURIComponent(campaignUrl)}`,
-                    `https://corsproxy.io/?${encodeURIComponent(campaignUrl)}`,
-                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(campaignUrl)}`
-                ];
-
-                let html = null;
-                let lastError = null;
-
-                for (const proxyUrl of proxies) {
-                    try {
-                        console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} trying proxy:`, proxyUrl);
-                        const response = await fetch(proxyUrl, { timeout: 10000 });
-
-                        if (!response.ok) {
-                            console.log(`Proxy returned HTTP ${response.status}, trying next...`);
-                            continue;
-                        }
-
-                        html = await response.text();
-
-                        // Check if we got actual HTML content (not an error page)
-                        if (html && html.length > 500 && (html.includes('<!DOCTYPE') || html.includes('<html'))) {
-                            console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} received HTML length:`, html.length);
-                            break;
-                        } else {
-                            console.log('Proxy returned invalid/short response, trying next...');
-                            html = null;
-                        }
-                    } catch (proxyError) {
-                        console.log(`Proxy failed: ${proxyError.message}, trying next...`);
-                        lastError = proxyError;
-                    }
-                }
-
-                if (!html) {
-                    throw new Error(lastError ? lastError.message : 'All proxies failed to fetch the campaign page');
-                }
-                
-                const amount = extractHHRDAmount(html);
-                console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} extracted amount:`, amount);
-
-                if (amount !== null) {
-                    const currentWebsiteAmount = totals['website'] || 0;
-                    console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} current website amount:`, currentWebsiteAmount, 'new amount:', amount);
-                    
-                    if (amount !== currentWebsiteAmount) {
-                        console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} updating website amount from ${currentWebsiteAmount} to ${amount}`);
-                        
-                        // Record the change as a transaction
-                        const difference = amount - currentWebsiteAmount;
-                        addTransaction('website', difference);
-                        
-                        // Update the website donation total directly in the totals object and display
-                        totals['website'] = amount;
-                        document.getElementById('websiteTotal').textContent = formatCurrency(amount);
-                        localStorage.setItem('websiteTotal', amount);
-                        localStorage.setItem('campaignUrl', campaignUrl);
-                        document.getElementById('clearUrlBtn').style.display = 'inline-block';
-                        
-                        // Recalculate and update the overall total
-                        let categoryTotal = Object.values(totals).reduce((a, b) => a + b, 0);
-                        localStorage.setItem('fundraiserTotal', categoryTotal);
-                        updateTotal();
-                        
-                        console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} new total:`, categoryTotal);
-                        
-                        // Broadcast the update to other windows
-                        broadcastUpdate('donation', { total: categoryTotal, website: amount });
-
-                        if (isAutoSync) {
-                            showAutoSyncNotification(amount);
-                        } else {
-                            alert(`Successfully synced! Website donations updated to ${formatCurrency(amount)}`);
-                        }
-                    } else {
-                        console.log(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} no change in amount, skipping update`);
-                        if (!isAutoSync) {
-                            alert(`Sync successful! Amount is already up to date: ${formatCurrency(amount)}`);
-                        }
-                    }
-                    updateSyncStatus('success');
-                    syncRetryCount = 0;
-                } else {
-                    // Log sample of HTML to help debug
-                    console.log('HTML sample (first 2000 chars):', html.substring(0, 2000));
-                    throw new Error('Could not find donation amount on page. The page structure may have changed. Check browser console for details.');
-                }
-
-            } catch (error) {
-                console.error(`${isAutoSync ? 'Auto-sync' : 'Manual sync'} error:`, error);
-                updateSyncStatus('error', error.message.substring(0, 30));
-
-                // Retry logic for auto-sync with exponential backoff
-                if (isAutoSync && syncRetryCount < MAX_SYNC_RETRIES) {
-                    syncRetryCount++;
-                    const retryDelay = Math.pow(2, syncRetryCount) * 30000; // 30s, 60s, 120s
-                    console.log(`Auto-sync will retry in ${retryDelay/1000} seconds (attempt ${syncRetryCount}/${MAX_SYNC_RETRIES})`);
-                    setTimeout(() => syncFromCampaign(true), retryDelay);
-                }
-
-                if (!isAutoSync) {
-                    alert('Sync failed: ' + error.message + '\n\nOpen browser console (F12) for more details.');
-                }
-            } finally {
-                if (!isAutoSync) {
-                    syncButton.textContent = originalText;
-                    syncButton.disabled = false;
-                }
-            }
-        }
-
-        // Clear campaign URL and stop auto-sync
-        function clearCampaignUrl() {
-            if (!confirm('Clear the campaign URL? This will stop auto-sync and hide the QR code on the display.')) {
-                return;
-            }
-
-            // Stop auto-sync if running
-            if (autoSyncInterval) {
-                clearInterval(autoSyncInterval);
-                autoSyncInterval = null;
-            }
-            autoSyncEnabled = false;
-            document.getElementById('autoSyncToggle').checked = false;
-
-            // Clear the URL
-            document.getElementById('campaignUrl').value = '';
-            localStorage.removeItem('campaignUrl');
-            localStorage.removeItem('autoSyncEnabled');
-            localStorage.removeItem('lastSyncTime');
-
-            // Hide the clear button and last sync info
-            document.getElementById('clearUrlBtn').style.display = 'none';
-            document.getElementById('lastSyncInfo').style.display = 'none';
-            document.getElementById('syncStatus').innerHTML = '';
-
-            // Broadcast to hide QR code
-            broadcastUpdate('clearUrl', {});
-
-            showAutoSyncStatus('Campaign URL cleared');
-        }
-
-        // Toggle auto-sync
-        function toggleAutoSync() {
-            const campaignUrl = document.getElementById('campaignUrl').value.trim();
-            if (!campaignUrl) {
-                alert('Please enter a campaign URL first');
-                document.getElementById('autoSyncToggle').checked = false;
-                return;
-            }
-
-            autoSyncEnabled = document.getElementById('autoSyncToggle').checked;
-            
-            if (autoSyncEnabled) {
-                autoSyncInterval = setInterval(() => {
-                    syncFromCampaign(true);
-                }, 60000);
-                
-                syncFromCampaign(true);
-                showAutoSyncStatus('Auto-sync enabled - syncing every minute');
-            } else {
-                if (autoSyncInterval) {
-                    clearInterval(autoSyncInterval);
-                    autoSyncInterval = null;
-                }
-                showAutoSyncStatus('Auto-sync disabled');
-            }
-            
-            localStorage.setItem('autoSyncEnabled', autoSyncEnabled);
-        }
-
-        // Load auto-sync preference on page load
-        function loadAutoSyncPreference() {
-            const saved = localStorage.getItem('autoSyncEnabled');
-            const campaignUrl = localStorage.getItem('campaignUrl');
-            
-            if (saved === 'true' && campaignUrl) {
-                document.getElementById('autoSyncToggle').checked = true;
-                autoSyncEnabled = true;
-                
-                autoSyncInterval = setInterval(() => {
-                    syncFromCampaign(true);
-                }, 60000);
-                
-                showAutoSyncStatus('Auto-sync restored - syncing every minute');
-            }
-        }
-
-        // Enhanced HTML parsing for both HHRD page formats
-        function extractHHRDAmount(html) {
-            try {
-                // Method 1 (BEST): Extract from embedded JSON data
-                // HHRD pages embed campaign data as JSON with fields like "totalRaisedAmount" or "raisedAmount"
-                const jsonPatterns = [
-                    /"totalRaisedAmount"\s*:\s*([\d.]+)/,
-                    /"raisedAmount"\s*:\s*([\d.]+)/,
-                    /"raised_amount"\s*:\s*([\d.]+)/,
-                    /"amountRaised"\s*:\s*([\d.]+)/,
-                    /"total_raised"\s*:\s*([\d.]+)/,
-                    /"currentAmount"\s*:\s*([\d.]+)/
-                ];
-
-                for (const pattern of jsonPatterns) {
-                    const match = html.match(pattern);
-                    if (match) {
-                        const amount = parseFloat(match[1]);
-                        if (!isNaN(amount) && amount >= 0) {
-                            console.log('Found amount using Method 1 (JSON data):', amount);
-                            return amount;
-                        }
-                    }
-                }
-
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                // Method 2: Look for "$X,XXX.XX raised" in primary bold text
-                const primaryBoldElements = doc.querySelectorAll('.text-primary.font-bold, .font-bold.text-primary');
-                for (const element of primaryBoldElements) {
-                    const text = element.textContent || element.innerText;
-                    if (text && text.includes('raised')) {
-                        const match = text.match(/\$([0-9,]+\.?[0-9]*)/);
-                        if (match) {
-                            const amount = parseFloat(match[1].replace(/,/g, ''));
-                            if (!isNaN(amount) && amount > 0) {
-                                console.log('Found amount using Method 2 (text-primary font-bold):', amount);
-                                return amount;
-                            }
-                        }
-                    }
-                }
-
-                // Method 3: Common HHRD selectors
-                const commonSelectors = [
-                    '.donation-amount',
-                    '.raised-amount',
-                    '.current-amount',
-                    '.amount-raised',
-                    '.total-raised',
-                    '.progress-amount',
-                    '#raised-amount',
-                    '.fund-amount',
-                    '.collected'
-                ];
-
-                for (const selector of commonSelectors) {
-                    const element = doc.querySelector(selector);
-                    if (element) {
-                        const text = element.textContent || element.innerText;
-                        const amount = parseAmountText(text);
-                        if (amount !== null && amount > 0) {
-                            console.log(`Found amount using Method 3 (${selector}):`, amount);
-                            return amount;
-                        }
-                    }
-                }
-
-                // Method 4: Look for any element containing "raised" with dollar amounts
-                const allElements = doc.querySelectorAll('*');
-                for (const element of allElements) {
-                    const text = element.textContent || element.innerText;
-                    if (text && text.includes('raised') && text.includes('$')) {
-                        const match = text.match(/\$([0-9,]+\.?[0-9]*)\s*raised/i);
-                        if (match) {
-                            const amount = parseFloat(match[1].replace(/,/g, ''));
-                            if (!isNaN(amount) && amount > 0) {
-                                console.log('Found amount using Method 4 (text contains "raised"):', amount);
-                                return amount;
-                            }
-                        }
-                    }
-                }
-
-                // Method 5: Search for potential amount elements
-                const potentialAmountElements = doc.querySelectorAll('[class*="text-"], [class*="font-"], span, div');
-                for (const element of potentialAmountElements) {
-                    const text = element.textContent || element.innerText;
-                    if (text && text.includes('$') && (text.includes('raised') || text.includes('of'))) {
-                        const amount = parseAmountText(text);
-                        if (amount !== null && amount > 0) {
-                            console.log('Found amount using Method 5 (potential amount elements):', amount);
-                            return amount;
-                        }
-                    }
-                }
-
-                // Method 6: Fallback - scan entire body for dollar amounts
-                const bodyText = doc.body ? doc.body.textContent : html;
-                const dollarMatches = bodyText.match(/\$[\d,]+(?:\.\d{2})?/g);
-
-                if (dollarMatches && dollarMatches.length > 0) {
-                    const amounts = dollarMatches
-                        .map(match => parseAmountText(match))
-                        .filter(amt => amt !== null && amt > 0 && amt < 10000000)
-                        .sort((a, b) => b - a);
-
-                    if (amounts.length > 0) {
-                        console.log('Found amount using Method 6 (body text scan):', amounts[0]);
-                        console.log('All amounts found:', amounts);
-                        return amounts[0];
-                    }
-                }
-
-                console.log('No donation amount found in HTML');
-                return null;
-            } catch (error) {
-                console.error('Error parsing HTML:', error);
-                return null;
-            }
-        }
-
-        function parseAmountText(text) {
-            if (!text) return null;
-            const cleaned = text.replace(/[^0-9,\.]/g, '');
-            const number = parseFloat(cleaned.replace(/,/g, ''));
-            return isNaN(number) ? null : number;
-        }
-
-        // Panel management functions
-        function togglePanel(side) {
-            const isChecked = document.getElementById(`${side}PanelToggle`).checked;
-            const panelItems = document.getElementById(`${side}PanelItems`);
-            
-            if (isChecked) {
-                panelItems.classList.add('active');
-            } else {
-                panelItems.classList.remove('active');
-            }
-            savePanelData(side);
-        }
-
-        function addPanelItem(side) {
-            const count = ++panelItemCount[side];
-            const itemHtml = `
-                <div class="panel-item" data-item="${count}">
-                    <input type="text" placeholder="Label" class="item-label" oninput="savePanelData('${side}')">
-                    <input type="text" placeholder="Value" class="item-value" oninput="savePanelData('${side}')">
-                    <button class="remove-item-btn" onclick="removePanelItem('${side}', ${count})">×</button>
+    <div class="page">
+
+        <!-- Hero Total -->
+        <div class="hero">
+            <div class="hero-left">
+                <h2>Total Raised</h2>
+                <div class="hero-total" id="totalCollected">$0</div>
+                <div class="hero-meta" id="heroMeta">of $100,000 goal</div>
+            </div>
+            <div class="hero-right">
+                <div class="hero-pct" id="heroPct">0%</div>
+                <div class="hero-pct-label">of goal reached</div>
+                <div class="hero-progress">
+                    <div class="hero-progress-fill" id="heroBar" style="width:0%"></div>
                 </div>
-            `;
-            document.getElementById(`${side}PanelContent`).insertAdjacentHTML('beforeend', itemHtml);
-        }
+            </div>
+        </div>
 
-        function removePanelItem(side, itemId) {
-            const item = document.querySelector(`#${side}PanelContent .panel-item[data-item="${itemId}"]`);
-            if (item) {
-                item.remove();
-                savePanelData(side);
-            }
-        }
+        <!-- Row 1: Config + Status -->
+        <div class="grid-2" style="margin-bottom:20px">
 
-        function savePanelData(side) {
-            const isActive = document.getElementById(`${side}PanelToggle`).checked;
-            const title = document.getElementById(`${side}PanelTitle`).value;
-            const items = [];
-            
-            document.querySelectorAll(`#${side}PanelContent .panel-item`).forEach(item => {
-                const label = item.querySelector('.item-label').value;
-                const value = item.querySelector('.item-value').value;
-                if (label && value) {
-                    items.push({ label, value });
+            <!-- Basic Config -->
+            <div class="card">
+                <div class="card-title">
+                    <div class="card-title-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2" stroke="#64748B" stroke-width="1.5"/><path d="M6 1v1M6 10v1M1 6h1M10 6h1M2.5 2.5l.7.7M8.8 8.8l.7.7M2.5 9.5l.7-.7M8.8 3.2l.7-.7" stroke="#64748B" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                    Campaign Setup
+                </div>
+                <div class="field">
+                    <label>Fundraiser Title</label>
+                    <div class="field-row">
+                        <input type="text" id="titleInput" placeholder="Enter title…">
+                        <button class="btn btn-primary" onclick="setTitle()">Set</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Goal Amount ($)</label>
+                    <div class="field-row">
+                        <input type="number" id="goalInput" min="0" step="100" placeholder="100000">
+                        <button class="btn btn-primary" onclick="setGoal()">Set</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Override Total</label>
+                    <div class="field-row">
+                        <input type="number" id="overrideTotal" step="0.01" placeholder="0.00">
+                        <button class="btn btn-warning" onclick="applyOverride()">Override</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Online Sync -->
+            <div class="card">
+                <div class="card-title">
+                    <div class="card-title-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 112 6" stroke="#64748B" stroke-width="1.5" stroke-linecap="round"/><path d="M10 3v3h-3" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    Online Campaign Sync
+                </div>
+                <div class="field">
+                    <label>Campaign URL (HHRD)</label>
+                    <div class="field-row">
+                        <input type="url" id="campaignUrl" placeholder="https://fundraise.hhrd.org/…">
+                        <button class="btn btn-primary" id="syncButton" onclick="syncFromCampaign()">Sync</button>
+                        <button class="btn btn-danger btn-sm" id="clearUrlBtn" onclick="clearCampaignUrl()" style="display:none">Clear</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="toggle-wrap">
+                        <label class="toggle">
+                            <input type="checkbox" id="autoSyncToggle" onchange="toggleAutoSync()">
+                            <div class="toggle-track"></div>
+                        </label>
+                        <span style="font-size:13px;font-weight:500;color:var(--text2)">Auto-sync every minute</span>
+                        <span id="syncStatus"></span>
+                    </div>
+                    <div class="last-sync-text" id="lastSyncInfo" style="display:none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donation Inputs -->
+        <div class="card" style="margin-bottom:20px">
+            <div class="card-title" style="justify-content:space-between">
+                <span style="display:flex;align-items:center;gap:8px">
+                    <div class="card-title-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="10" height="7" rx="1.5" stroke="#64748B" stroke-width="1.5"/><path d="M1 5h10" stroke="#64748B" stroke-width="1.5"/><circle cx="4" cy="8" r="0.75" fill="#64748B"/></svg></div>
+                    Donation Entry
+                </span>
+                <button class="btn btn-ghost btn-sm" onclick="resetDonationInputs()">Reset All</button>
+            </div>
+            <div>
+                <div class="donation-row">
+                    <div class="donation-icon" style="background:#FEF3C7"><span style="width:8px;height:8px;border-radius:50%;background:#D97706;display:block"></span></div>
+                    <div class="donation-label">Cash</div>
+                    <input type="number" class="donation-input" id="cashInput" step="0.01" placeholder="Enter amount + Enter">
+                    <div class="donation-total" id="cashTotal">$0</div>
+                </div>
+                <div class="donation-row">
+                    <div class="donation-icon" style="background:#EFF6FF"><span style="width:8px;height:8px;border-radius:50%;background:#2563EB;display:block"></span></div>
+                    <div class="donation-label">Check</div>
+                    <input type="number" class="donation-input" id="checkInput" step="0.01" placeholder="Enter amount + Enter">
+                    <div class="donation-total" id="checkTotal">$0</div>
+                </div>
+                <div class="donation-row">
+                    <div class="donation-icon" style="background:#F0FDF4"><span style="width:8px;height:8px;border-radius:50%;background:#059669;display:block"></span></div>
+                    <div class="donation-label">Pledges</div>
+                    <input type="number" class="donation-input" id="pledgesInput" step="0.01" placeholder="Enter amount + Enter">
+                    <div class="donation-total" id="pledgesTotal">$0</div>
+                </div>
+                <div class="donation-row">
+                    <div class="donation-icon" style="background:#FDF4FF"><span style="width:8px;height:8px;border-radius:50%;background:#7C3AED;display:block"></span></div>
+                    <div class="donation-label">Square</div>
+                    <input type="number" class="donation-input" id="squareInput" step="0.01" placeholder="Enter amount + Enter">
+                    <div class="donation-total" id="squareTotal">$0</div>
+                </div>
+                <div class="donation-row">
+                    <div class="donation-icon" style="background:#F0F9FF"><span style="width:8px;height:8px;border-radius:50%;background:#0284C7;display:block"></span></div>
+                    <div class="donation-label">Website</div>
+                    <input type="number" class="donation-input" id="websiteInput" step="0.01" placeholder="Enter amount + Enter">
+                    <div class="donation-total" id="websiteTotal">$0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row: Panels + QR -->
+        <div class="grid-2" style="margin-bottom:20px">
+
+            <!-- Info Panels -->
+            <div class="card">
+                <div class="card-title">
+                    <div class="card-title-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="4" height="10" rx="1" stroke="#64748B" stroke-width="1.5"/><rect x="7" y="1" width="4" height="10" rx="1" stroke="#64748B" stroke-width="1.5"/></svg></div>
+                    Side Info Panels
+                </div>
+                <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Configure the data panels shown beside your thermometer.</p>
+                <div class="panel-grid">
+                    <!-- Left Panel -->
+                    <div class="panel-editor">
+                        <div class="panel-editor-header">
+                            <span class="panel-editor-title">Left Panel</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="leftPanelToggle" onchange="togglePanel('left')">
+                                <div class="toggle-track"></div>
+                            </label>
+                        </div>
+                        <div class="panel-items" id="leftPanelItems">
+                            <div class="field">
+                                <label>Panel Title</label>
+                                <input type="text" id="leftPanelTitle" placeholder="Title" oninput="savePanelData('left')">
+                            </div>
+                            <div id="leftPanelContent"></div>
+                            <button class="btn btn-success btn-sm add-item-btn" onclick="addPanelItem('left')">+ Add Row</button>
+                        </div>
+                    </div>
+                    <!-- Right Panel -->
+                    <div class="panel-editor">
+                        <div class="panel-editor-header">
+                            <span class="panel-editor-title">Right Panel</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="rightPanelToggle" onchange="togglePanel('right')">
+                                <div class="toggle-track"></div>
+                            </label>
+                        </div>
+                        <div class="panel-items" id="rightPanelItems">
+                            <div class="field">
+                                <label>Panel Title</label>
+                                <input type="text" id="rightPanelTitle" placeholder="Title" oninput="savePanelData('right')">
+                            </div>
+                            <div id="rightPanelContent"></div>
+                            <button class="btn btn-success btn-sm add-item-btn" onclick="addPanelItem('right')">+ Add Row</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Config -->
+            <div class="card">
+                <div class="card-title">
+                    <div class="card-title-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="4" height="4" rx="0.5" stroke="#64748B" stroke-width="1.5"/><rect x="7" y="1" width="4" height="4" rx="0.5" stroke="#64748B" stroke-width="1.5"/><rect x="1" y="7" width="4" height="4" rx="0.5" stroke="#64748B" stroke-width="1.5"/><rect x="7.5" y="7.5" width="1" height="1" fill="#64748B"/><rect x="9.5" y="7.5" width="1" height="1" fill="#64748B"/><rect x="7.5" y="9.5" width="1" height="1" fill="#64748B"/><rect x="9.5" y="9.5" width="1" height="1" fill="#64748B"/></svg></div>
+                    QR Code Panel
+                </div>
+                <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Generate and display a QR code beside your thermometer. Press <kbd style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:11px">Q</kbd> on the display to toggle it.</p>
+
+                <div class="qr-preview-wrap">
+                    <div class="qr-preview-box">
+                        <canvas id="qrPreviewCanvas" width="240" height="240"></canvas>
+                        <div style="text-align:center;font-size:10px;color:var(--text3);margin-top:6px">Live Preview</div>
+                    </div>
+                    <div class="qr-config">
+                        <div class="field">
+                            <label>URL to encode</label>
+                            <div class="field-row">
+                                <input type="url" id="qrUrlInput" placeholder="https://…" oninput="previewQR()">
+                            </div>
+                            <div style="font-size:11px;color:var(--text3);margin-top:4px">Leave blank to use Campaign URL above</div>
+                        </div>
+                        <div class="field">
+                            <label>Label text</label>
+                            <input type="text" id="qrLabelInput" placeholder="Scan to Donate" oninput="saveQRConfig()">
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap">
+                            <button class="btn btn-primary btn-sm" onclick="applyQRConfig()">Save &amp; Show on Display</button>
+                            <button class="btn btn-ghost btn-sm" onclick="clearQRConfig()">Clear</button>
+                        </div>
+                        <div id="qrStatus" class="qr-status inactive" style="margin-top:10px">No QR configured</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appearance -->
+        <div class="card" style="margin-bottom:20px">
+            <div class="card-title">
+                <div class="card-title-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="3" cy="3" r="2" fill="#EF4444"/><circle cx="9" cy="3" r="2" fill="#3B82F6"/><circle cx="3" cy="9" r="2" fill="#10B981"/><circle cx="9" cy="9" r="2" fill="#F59E0B"/></svg></div>
+                Appearance
+            </div>
+            <div class="grid-3">
+                <!-- Colors -->
+                <div>
+                    <p style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:14px">Colors</p>
+                    <div class="field">
+                        <label>Background</label>
+                        <div class="color-field">
+                            <input type="color" id="backgroundColorPicker" value="#0B1628">
+                            <input type="text" id="backgroundColorHex" class="color-hex" placeholder="#0B1628" maxlength="7">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Liquid Fill</label>
+                        <div class="color-field">
+                            <input type="color" id="fillColorPicker" value="#4FC3F7">
+                            <input type="text" id="fillColorHex" class="color-hex" placeholder="#4FC3F7" maxlength="7">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Title Color</label>
+                        <div class="color-field">
+                            <input type="color" id="titleColorPicker" value="#F5A623">
+                            <input type="text" id="titleColorHex" class="color-hex" placeholder="#F5A623" maxlength="7">
+                        </div>
+                    </div>
+                </div>
+                <!-- Typography -->
+                <div>
+                    <p style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:14px">Typography &amp; Position</p>
+                    <div class="field">
+                        <label>Title Font</label>
+                        <select id="titleFontSelect" style="width:100%">
+                            <option value="Dancing Script">Dancing Script (Elegant)</option>
+                            <option value="Anton">Anton (Bold Impact)</option>
+                            <option value="Playfair Display">Playfair Display (Serif)</option>
+                            <option value="Moontime">Moontime (Decorative)</option>
+                            <option value="Georgia">Georgia (Classic)</option>
+                            <option value="Inter">Inter (Modern Clean)</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Impact">Impact</option>
+                            <option value="Verdana">Verdana</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Title Size</label>
+                        <div class="range-row">
+                            <input type="range" id="titleSizeSlider" min="20" max="80" value="46" oninput="updateSlider('titleSize')">
+                            <span class="range-value" id="titleSizeValue">46px</span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Title Distance from Bottom</label>
+                        <div class="range-row">
+                            <input type="range" id="titleDistanceSlider" min="20" max="200" value="90" oninput="updateSlider('titleDistance')">
+                            <span class="range-value" id="titleDistanceValue">90px</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Presets -->
+                <div>
+                    <p style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:14px">Quick Themes</p>
+                    <div class="preset-chips">
+                        <button class="preset-chip" onclick="applyPreset('navy')">Navy Gold</button>
+                        <button class="preset-chip" onclick="applyPreset('modern')">Modern Blue</button>
+                        <button class="preset-chip" onclick="applyPreset('forest')">Forest</button>
+                        <button class="preset-chip" onclick="applyPreset('classic')">Classic</button>
+                        <button class="preset-chip" onclick="applyPreset('corporate')">Corporate</button>
+                        <button class="preset-chip" onclick="applyPreset('warm')">Warm Sunset</button>
+                        <button class="preset-chip" onclick="applyPreset('reset')">Reset</button>
+                    </div>
+                    <div style="margin-top:20px">
+                        <button class="btn btn-primary" style="width:100%" onclick="applyCustomization()">Apply to Display</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="actions-bar">
+            <span class="actions-bar-title">Actions</span>
+            <button class="btn btn-ghost" onclick="resetMilestones()">Reset Milestones</button>
+            <button class="btn btn-ghost" onclick="exportData()">Export CSV</button>
+            <button class="btn btn-ghost" onclick="exportSettings()">Export Backup</button>
+            <button class="btn btn-ghost" onclick="importSettings()">Import Backup</button>
+            <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+        </div>
+
+    </div>
+
+    <!-- Embedded QR Generator (same as display) -->
+    <script>
+    var QRGen = (function(){
+        var EXP=new Array(256),LOG=new Array(256);
+        (function(){var v=1;for(var i=0;i<255;i++){EXP[i]=v;LOG[v]=i;v=v<128?v<<1:(v<<1)^0x11D;}EXP[255]=EXP[0];})();
+        function gexp(n){return EXP[((n%255)+255)%255];}
+        function glog(n){if(n<1)throw 0;return LOG[n];}
+        function polyMul(a,b){var r=new Array(a.length+b.length-1).fill(0);for(var i=0;i<a.length;i++)for(var j=0;j<b.length;j++)r[i+j]^=gexp((glog(a[i])+glog(b[j]))%255);return r;}
+        function genPoly(n){var g=[1];for(var i=0;i<n;i++)g=polyMul(g,[1,gexp(i)]);return g;}
+        function rsEncode(data,nsym){var gen=genPoly(nsym),msg=data.concat(new Array(nsym).fill(0));for(var i=0;i<data.length;i++){var c=msg[i];if(c){for(var j=1;j<=nsym;j++)msg[i+j]^=gexp((glog(c)+glog(gen[j]))%255);}}return msg.slice(data.length);}
+        var RST=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,14],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,18],[4,40,14,2,41,13],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,16],[4,36,12,4,37,12],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,19],[6,43,15,2,44,16]];
+        function getRSBlocks(ver,ecl){var t=RST[(ver-1)*4+ecl],blocks=[],i=0;while(i<t.length){for(var k=0;k<t[i];k++)blocks.push({total:t[i+1],data:t[i+2]});i+=3;}return blocks;}
+        var ALIGN=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,132],[6,34,60,86,112,136],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];
+        var FMTM=[29671,29427,29196,29956,28730,28486,28255,29015];
+        function buildMatrix(ver,ecl,maskPat,dataWords){
+            var n=ver*4+17,m=[];
+            for(var i=0;i<n;i++){m[i]=new Array(n).fill(null);}
+            function finder(r,c){for(var dr=-1;dr<=7;dr++)for(var dc=-1;dc<=7;dc++){var rr=r+dr,cc=c+dc;if(rr<0||rr>=n||cc<0||cc>=n)continue;if(dr>=0&&dr<=6&&dc>=0&&dc<=6){m[rr][cc]=(dr===0||dr===6||dc===0||dc===6||(dr>=2&&dr<=4&&dc>=2&&dc<=4));}else{m[rr][cc]=false;}}}
+            finder(0,0);finder(n-7,0);finder(0,n-7);
+            for(var i=8;i<n-8;i++){if(m[6][i]==null)m[6][i]=(i%2===0);if(m[i][6]==null)m[i][6]=(i%2===0);}
+            var ap=ALIGN[ver-1];
+            for(var ai=0;ai<ap.length;ai++)for(var aj=0;aj<ap.length;aj++){var ar=ap[ai],ac=ap[aj];if(m[ar][ac]!==null)continue;for(var dr=-2;dr<=2;dr++)for(var dc=-2;dc<=2;dc++)m[ar+dr][ac+dc]=(dr===0&&dc===0)||(Math.abs(dr)===2||Math.abs(dc)===2);}
+            m[n-8][8]=true;
+            var fmt=FMTM[maskPat],fmtBits=[];for(var i=14;i>=0;i--)fmtBits.push((fmt>>i)&1);
+            for(var i=0;i<6;i++){m[i][8]=!!fmtBits[i];m[8][i]=!!fmtBits[14-i];}
+            m[7][8]=!!fmtBits[6];m[8][7]=!!fmtBits[8];m[8][8]=!!fmtBits[7];
+            for(var i=0;i<8;i++){m[n-1-i][8]=!!fmtBits[i];m[8][n-8+i]=!!fmtBits[7+i];}
+            var idx=0,bitIdx=0;
+            function getBit(){if(idx>=dataWords.length)return 0;var b=(dataWords[idx]>>(7-bitIdx))&1;bitIdx++;if(bitIdx===8){bitIdx=0;idx++;}return b;}
+            function mask(r,c){switch(maskPat){case 0:return(r+c)%2===0;case 1:return r%2===0;case 2:return c%3===0;case 3:return(r+c)%3===0;case 4:return(Math.floor(r/2)+Math.floor(c/3))%2===0;case 5:return(r*c)%2+(r*c)%3===0;case 6:return((r*c)%2+(r*c)%3)%2===0;case 7:return((r+c)%2+(r*c)%3)%2===0;}}
+            var up=true;
+            for(var col=n-1;col>=1;col-=2){if(col===6)col=5;for(var i=0;i<n;i++){var row=up?n-1-i:i;for(var delta=0;delta<=1;delta++){var c=col-delta;if(m[row][c]===null){var bit=getBit();m[row][c]=mask(row,c)?!bit:!!bit;}}}up=!up;}
+            return m;
+        }
+        function encode(text,ver,ecl){
+            var bytes=[];for(var i=0;i<text.length;i++){var code=text.charCodeAt(i);if(code<128){bytes.push(code);}else if(code<2048){bytes.push(0xC0|(code>>6));bytes.push(0x80|(code&0x3F));}else{bytes.push(0xE0|(code>>12));bytes.push(0x80|((code>>6)&0x3F));bytes.push(0x80|(code&0x3F));}}
+            var blocks=getRSBlocks(ver,ecl),totalData=blocks.reduce(function(a,b){return a+b.data;},0),buf=[];
+            buf.push(0x04);if(ver<10){buf.push(bytes.length);}else{buf.push(bytes.length>>8);buf.push(bytes.length&0xFF);}
+            for(var i=0;i<bytes.length;i++)buf.push(bytes[i]);
+            while(buf.length<totalData)buf.push(buf.length%2===0?0xEC:0x11);
+            var allData=[],allEC=[],offset=0;
+            for(var i=0;i<blocks.length;i++){var d=buf.slice(offset,offset+blocks[i].data);offset+=blocks[i].data;allData.push(d);allEC.push(rsEncode(d,blocks[i].total-blocks[i].data));}
+            var result=[],maxData=Math.max.apply(null,allData.map(function(d){return d.length;}));
+            for(var j=0;j<maxData;j++)for(var i=0;i<allData.length;i++)if(j<allData[i].length)result.push(allData[i][j]);
+            var maxEC=Math.max.apply(null,allEC.map(function(d){return d.length;}));
+            for(var j=0;j<maxEC;j++)for(var i=0;i<allEC.length;i++)if(j<allEC[i].length)result.push(allEC[i][j]);
+            return result;
+        }
+        var CAP_M=[14,26,42,62,84,106,122,152,180,213,251,287,331,370,411,461,512,560,614,664,718,754,808,871,911,985,1033,1115,1171,1231,1286,1354,1426,1502,1582,1666,1754,1846,1942,2040];
+        return {
+            render:function(canvas,text){
+                if(!text){var ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);return;}
+                var ver=1;for(var v=0;v<CAP_M.length;v++){if(text.length<=CAP_M[v]){ver=v+1;break;}}
+                if(ver>40)ver=40;
+                try{
+                    var words=encode(text,ver,1),mat=buildMatrix(ver,1,2,words),n=mat.length,ctx=canvas.getContext('2d'),sz=canvas.width,cell=Math.floor(sz/n);
+                    ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
+                    ctx.fillStyle='#000';
+                    for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(mat[r][c])ctx.fillRect(c*cell,r*cell,cell,cell);
+                }catch(e){
+                    var ctx=canvas.getContext('2d');ctx.fillStyle='#f3f4f6';ctx.fillRect(0,0,canvas.width,canvas.height);
+                    ctx.fillStyle='#9ca3af';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('Enter a URL above',canvas.width/2,canvas.height/2);
                 }
-            });
-
-            const panelData = { active: isActive, title, items };
-            localStorage.setItem(`${side}Panel`, JSON.stringify(panelData));
-        }
-
-        function loadPanelData() {
-            ['left', 'right'].forEach(side => {
-                const data = localStorage.getItem(`${side}Panel`);
-                if (data) {
-                    const panelData = JSON.parse(data);
-                    document.getElementById(`${side}PanelToggle`).checked = panelData.active;
-                    document.getElementById(`${side}PanelTitle`).value = panelData.title || '';
-                    
-                    if (panelData.active) {
-                        document.getElementById(`${side}PanelItems`).classList.add('active');
-                    }
-                    
-                    panelData.items.forEach(item => {
-                        addPanelItem(side);
-                        const items = document.querySelectorAll(`#${side}PanelContent .panel-item`);
-                        const lastItem = items[items.length - 1];
-                        lastItem.querySelector('.item-label').value = item.label;
-                        lastItem.querySelector('.item-value').value = item.value;
-                    });
-                }
-            });
-        }
-
-        // Customization functions
-        function updateSliderValue(type) {
-            const slider = document.getElementById(`${type}Slider`);
-            const display = document.getElementById(`${type}Value`);
-            display.textContent = slider.value + 'px';
-        }
-
-        function syncColorPickers() {
-            document.getElementById('backgroundColorPicker').addEventListener('input', function() {
-                document.getElementById('backgroundColorHex').value = this.value;
-            });
-            
-            document.getElementById('backgroundColorHex').addEventListener('input', function() {
-                const hex = this.value;
-                if (hex.match(/^#[0-9A-F]{6}$/i)) {
-                    document.getElementById('backgroundColorPicker').value = hex;
-                }
-            });
-            
-            document.getElementById('fillColorPicker').addEventListener('input', function() {
-                document.getElementById('fillColorHex').value = this.value;
-            });
-            
-            document.getElementById('fillColorHex').addEventListener('input', function() {
-                const hex = this.value;
-                if (hex.match(/^#[0-9A-F]{6}$/i)) {
-                    document.getElementById('fillColorPicker').value = hex;
-                }
-            });
-            
-            document.getElementById('titleColorPicker').addEventListener('input', function() {
-                document.getElementById('titleColorHex').value = this.value;
-            });
-            
-            document.getElementById('titleColorHex').addEventListener('input', function() {
-                const hex = this.value;
-                if (hex.match(/^#[0-9A-F]{6}$/i)) {
-                    document.getElementById('titleColorPicker').value = hex;
-                }
-            });
-        }
-
-        function applyCustomization() {
-            const customization = {
-                backgroundColor: document.getElementById('backgroundColorPicker').value,
-                fillColor: document.getElementById('fillColorPicker').value,
-                titleColor: document.getElementById('titleColorPicker').value,
-                titleFont: document.getElementById('titleFontSelect').value,
-                titleSize: document.getElementById('titleSizeSlider').value,
-                titleDistance: document.getElementById('titleDistanceSlider').value
-            };
-
-            localStorage.setItem('thermometerCustomization', JSON.stringify(customization));
-            broadcastUpdate('customization', customization);
-            alert('Customization applied! Changes will appear on the thermometer display.');
-        }
-
-        function loadCustomization() {
-            const saved = localStorage.getItem('thermometerCustomization');
-            if (saved) {
-                const customization = JSON.parse(saved);
-                document.getElementById('backgroundColorPicker').value = customization.backgroundColor || '#01243c';
-                document.getElementById('backgroundColorHex').value = customization.backgroundColor || '#01243c';
-                document.getElementById('fillColorPicker').value = customization.fillColor || '#8ddbf5';
-                document.getElementById('fillColorHex').value = customization.fillColor || '#8ddbf5';
-                document.getElementById('titleColorPicker').value = customization.titleColor || '#efab3a';
-                document.getElementById('titleColorHex').value = customization.titleColor || '#efab3a';
-                document.getElementById('titleFontSelect').value = customization.titleFont || 'Dancing Script';
-                document.getElementById('titleSizeSlider').value = customization.titleSize || 45;
-                document.getElementById('titleSizeValue').textContent = (customization.titleSize || 45) + 'px';
-                document.getElementById('titleDistanceSlider').value = customization.titleDistance || 80;
-                document.getElementById('titleDistanceValue').textContent = (customization.titleDistance || 80) + 'px';
             }
-        }
+        };
+    })();
+    </script>
 
-        function applyPreset(preset) {
-            let settings = {};
-            
-            switch(preset) {
-                case 'modern':
-                    settings = {
-                        backgroundColor: '#1a1a2e',
-                        fillColor: '#00d4ff',
-                        titleColor: '#ffffff',
-                        titleFont: 'Arial',
-                        titleSize: 48,
-                        titleDistance: 80
-                    };
-                    break;
-                case 'classic':
-                    settings = {
-                        backgroundColor: '#2c3e50',
-                        fillColor: '#3498db',
-                        titleColor: '#f39c12',
-                        titleFont: 'Georgia',
-                        titleSize: 42,
-                        titleDistance: 80
-                    };
-                    break;
-                case 'fun':
-                    settings = {
-                        backgroundColor: '#8e44ad',
-                        fillColor: '#f1c40f',
-                        titleColor: '#e74c3c',
-                        titleFont: 'Comic Sans MS',
-                        titleSize: 50,
-                        titleDistance: 80
-                    };
-                    break;
-                case 'corporate':
-                    settings = {
-                        backgroundColor: '#34495e',
-                        fillColor: '#16a085',
-                        titleColor: '#ecf0f1',
-                        titleFont: 'Helvetica',
-                        titleSize: 40,
-                        titleDistance: 80
-                    };
-                    break;
-                case 'reset':
-                    settings = {
-                        backgroundColor: '#01243c',
-                        fillColor: '#8ddbf5',
-                        titleColor: '#efab3a',
-                        titleFont: 'Dancing Script',
-                        titleSize: 45,
-                        titleDistance: 80
-                    };
-                    break;
-            }
-            
-            document.getElementById('backgroundColorPicker').value = settings.backgroundColor;
-            document.getElementById('backgroundColorHex').value = settings.backgroundColor;
-            document.getElementById('fillColorPicker').value = settings.fillColor;
-            document.getElementById('fillColorHex').value = settings.fillColor;
-            document.getElementById('titleColorPicker').value = settings.titleColor;
-            document.getElementById('titleColorHex').value = settings.titleColor;
-            document.getElementById('titleFontSelect').value = settings.titleFont;
-            document.getElementById('titleSizeSlider').value = settings.titleSize;
-            document.getElementById('titleSizeValue').textContent = settings.titleSize + 'px';
-            document.getElementById('titleDistanceSlider').value = settings.titleDistance;
-            document.getElementById('titleDistanceValue').textContent = settings.titleDistance + 'px';
-            
-            applyCustomization();
-        }
+    <script>
+    // ── GLOBAL STATE ─────────────────────────────────────
+    const categories = ['cash','check','pledges','square','website'];
+    let totals = {};
+    let transactions = [];
+    let panelItemCount = { left: 0, right: 0 };
+    let autoSyncInterval = null;
+    let autoSyncEnabled = false;
+    let lastSyncTime = null;
+    let syncRetryCount = 0;
+    const MAX_RETRIES = 3;
 
-        // Quick actions
-        function clearAllData() {
-            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
-                localStorage.clear();
-                transactions = [];
-                location.reload();
-            }
-        }
+    let broadcastChannel = null;
+    try { broadcastChannel = new BroadcastChannel('fundraiser-updates'); } catch(e) {}
+    function broadcast(type, data) {
+        if (broadcastChannel) broadcastChannel.postMessage({ type, data, timestamp: Date.now() });
+    }
 
-        // Reset milestone celebrations (for testing)
-        function resetMilestones() {
-            localStorage.removeItem('celebratedMilestones');
-            broadcastUpdate('resetMilestones', {});
-            alert('Milestone celebrations have been reset. They will trigger again when thresholds are crossed.');
-        }
+    // ── TOAST ─────────────────────────────────────────────
+    let toastTimer = null;
+    function showToast(msg, type = 'info') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast show ' + type;
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+    }
 
-        // Fixed export data function - now exports CSV of transactions
-        function exportData() {
-            if (transactions.length === 0) {
-                alert('No transaction data to export. Add some donations first!');
-                return;
-            }
+    // ── FORMAT ────────────────────────────────────────────
+    function formatCurrency(n) { return '$' + Math.round(n).toLocaleString(); }
 
-            // Create CSV header
-            let csvContent = 'Type,Amount,Timestamp\n';
-            
-            // Add each transaction
-            transactions.forEach(transaction => {
-                const date = new Date(transaction.timestamp).toLocaleString();
-                csvContent += `${transaction.type},${transaction.amount},"${date}"\n`;
-            });
+    // ── HERO UPDATE ───────────────────────────────────────
+    function updateHero() {
+        const stored = parseFloat(localStorage.getItem('fundraiserTotal'));
+        const goal = parseFloat(localStorage.getItem('fundraiserGoal')) || 100000;
+        const total = isNaN(stored) ? Object.values(totals).reduce((a,b)=>a+b,0) : stored;
+        const pct = Math.min((total/goal)*100, 100);
 
-            // Create and download the CSV file
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            
-            // Generate filename with current date
-            const now = new Date();
-            const dateStr = now.getFullYear() + '-' + 
-                           String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                           String(now.getDate()).padStart(2, '0');
-            link.setAttribute('download', `fundraiser-transactions-${dateStr}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            alert(`Exported ${transactions.length} transactions to CSV file!`);
-        }
+        document.getElementById('totalCollected').textContent = formatCurrency(total);
+        document.getElementById('heroMeta').textContent = 'of ' + formatCurrency(goal) + ' goal';
+        document.getElementById('heroPct').textContent = Math.round(pct) + '%';
+        document.getElementById('heroBar').style.width = pct + '%';
+    }
 
-        function importData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        Object.keys(data).forEach(key => {
-                            localStorage.setItem(key, data[key]);
-                        });
-                        location.reload();
-                    } catch (error) {
-                        alert('Error importing data. Please check the file format.');
-                    }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
-        }
+    // ── TRANSACTIONS ──────────────────────────────────────
+    function loadTransactions() {
+        try { transactions = JSON.parse(localStorage.getItem('transactions') || '[]'); } catch(e) { transactions = []; }
+    }
+    function saveTransactions() { localStorage.setItem('transactions', JSON.stringify(transactions)); }
+    function addTransaction(type, amount) {
+        transactions.push({ type, amount, timestamp: new Date().toISOString() });
+        saveTransactions();
+    }
 
-        // Initialize everything when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load transactions first
-            loadTransactions();
-            
-            categories.forEach(category => {
-                totals[category] = parseFloat(localStorage.getItem(`${category}Total`)) || 0;
-                document.getElementById(`${category}Total`).textContent = formatCurrency(totals[category]);
-                
-                document.getElementById(`${category}Input`).addEventListener('change', function() {
-                    let value = parseFloat(this.value);
-                    if (!isNaN(value) && value !== 0) {
-                        // Record the transaction
-                        addTransaction(category, value);
-
-                        totals[category] += value;
-                        document.getElementById(`${category}Total`).textContent = formatCurrency(totals[category]);
-                        localStorage.setItem(`${category}Total`, totals[category]);
-                        this.value = '';
-
-                        let categoryTotal = Object.values(totals).reduce((a, b) => a + b, 0);
-                        localStorage.setItem('fundraiserTotal', categoryTotal);
-                        updateTotal();
-
-                        // Broadcast update to display window
-                        broadcastUpdate('donation', { total: categoryTotal, category: category, amount: value });
-                    }
-                });
-
-                document.getElementById(`${category}Input`).addEventListener('keypress', function(e) {
-                    if (e.which === 13) {
-                        this.dispatchEvent(new Event('change'));
-                    }
-                });
-            });
-
-            updateTotal();
-            loadPanelData();
-            loadCustomization();
-            syncColorPickers();
-            loadAutoSyncPreference();
-
-            // Load last sync time
-            const savedLastSync = localStorage.getItem('lastSyncTime');
-            if (savedLastSync) {
-                lastSyncTime = new Date(savedLastSync);
-                updateLastSyncDisplay();
-            }
-
-            // Update last sync display every minute
-            setInterval(updateLastSyncDisplay, 60000);
-
-            setInterval(updateTotal, 1000);
-
-            const savedTitle = localStorage.getItem('fundraiserTitle');
-            const savedGoal = localStorage.getItem('fundraiserGoal');
-            const savedCampaignUrl = localStorage.getItem('campaignUrl');
-
-            if (savedTitle) document.getElementById('titleInput').placeholder = `Current: ${savedTitle}`;
-            if (savedGoal) document.getElementById('goalInput').placeholder = `Current: $${parseFloat(savedGoal).toLocaleString()}`;
-            if (savedCampaignUrl) {
-                document.getElementById('campaignUrl').value = savedCampaignUrl;
-                document.getElementById('clearUrlBtn').style.display = 'inline-block';
-            }
+    // ── SETTERS ───────────────────────────────────────────
+    function setTitle() {
+        const v = document.getElementById('titleInput').value.trim();
+        if (!v) return;
+        localStorage.setItem('fundraiserTitle', v);
+        document.getElementById('titleInput').value = '';
+        document.getElementById('titleInput').placeholder = 'Current: ' + v;
+        broadcast('title', { title: v });
+        showToast('Title updated', 'success');
+    }
+    function setGoal() {
+        const v = parseFloat(document.getElementById('goalInput').value);
+        if (!v || v <= 0) return;
+        localStorage.setItem('fundraiserGoal', v);
+        localStorage.removeItem('celebratedMilestones');
+        document.getElementById('goalInput').value = '';
+        document.getElementById('goalInput').placeholder = 'Current: $' + v.toLocaleString();
+        broadcast('goal', { goal: v });
+        updateHero();
+        showToast('Goal set to ' + formatCurrency(v), 'success');
+    }
+    function applyOverride() {
+        const v = parseFloat(document.getElementById('overrideTotal').value);
+        if (isNaN(v)) return;
+        const current = Object.values(totals).reduce((a,b)=>a+b,0);
+        if (v - current !== 0) addTransaction('override', v - current);
+        localStorage.setItem('fundraiserTotal', v);
+        document.getElementById('overrideTotal').value = '';
+        broadcast('override', { total: v });
+        updateHero();
+        showToast('Total overridden to ' + formatCurrency(v), 'info');
+    }
+    function resetDonationInputs() {
+        if (!confirm('Reset all donation category totals to $0? Transaction history is preserved.')) return;
+        const current = Object.values(totals).reduce((a,b)=>a+b,0);
+        if (current > 0) addTransaction('reset', -current);
+        categories.forEach(cat => {
+            totals[cat] = 0;
+            document.getElementById(cat + 'Total').textContent = formatCurrency(0);
+            localStorage.setItem(cat + 'Total', 0);
         });
+        localStorage.setItem('fundraiserTotal', 0);
+        broadcast('reset', { total: 0 });
+        updateHero();
+        showToast('All donation totals reset', 'info');
+    }
+
+    // ── CAMPAIGN SYNC ────────────────────────────────────
+    async function syncFromCampaign(isAuto = false) {
+        const url = (document.getElementById('campaignUrl').value || '').trim();
+        if (!url) { if (!isAuto) showToast('Enter a campaign URL', 'error'); return; }
+        if (!url.toLowerCase().includes('fundraise.hhrd.org')) {
+            if (!isAuto) showToast('Please use a valid HHRD fundraising URL', 'error');
+            return;
+        }
+        const btn = document.getElementById('syncButton');
+        setSyncStatus('syncing');
+        if (!isAuto) { btn.disabled = true; btn.textContent = 'Syncing…'; }
+        const proxies = [
+            'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+            'https://corsproxy.io/?' + encodeURIComponent(url),
+            'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url)
+        ];
+        let html = null;
+        for (const p of proxies) {
+            try {
+                const r = await fetch(p);
+                if (!r.ok) continue;
+                const t = await r.text();
+                if (t && t.length > 500 && (t.includes('<!DOCTYPE') || t.includes('<html'))) { html = t; break; }
+            } catch(e) {}
+        }
+        if (!isAuto) { btn.disabled = false; btn.textContent = 'Sync'; }
+        if (!html) { setSyncStatus('error', 'All proxies failed'); return; }
+        const amount = extractHHRDAmount(html);
+        if (amount === null) { setSyncStatus('error', 'Amount not found'); return; }
+        const prev = totals['website'] || 0;
+        if (amount !== prev) {
+            addTransaction('website', amount - prev);
+            totals['website'] = amount;
+            document.getElementById('websiteTotal').textContent = formatCurrency(amount);
+            localStorage.setItem('websiteTotal', amount);
+            localStorage.setItem('campaignUrl', url);
+            document.getElementById('clearUrlBtn').style.display = '';
+            const catTotal = Object.values(totals).reduce((a,b)=>a+b,0);
+            localStorage.setItem('fundraiserTotal', catTotal);
+            broadcast('donation', { total: catTotal, website: amount });
+            updateHero();
+            if (isAuto) showToast('Synced: Website ' + formatCurrency(amount), 'success');
+        }
+        setSyncStatus('success');
+        if (!isAuto) showToast('Synced! Website: ' + formatCurrency(amount), 'success');
+        syncRetryCount = 0;
+    }
+
+    function clearCampaignUrl() {
+        if (!confirm('Clear the campaign URL and stop auto-sync?')) return;
+        if (autoSyncInterval) { clearInterval(autoSyncInterval); autoSyncInterval = null; }
+        autoSyncEnabled = false;
+        document.getElementById('autoSyncToggle').checked = false;
+        document.getElementById('campaignUrl').value = '';
+        document.getElementById('clearUrlBtn').style.display = 'none';
+        document.getElementById('lastSyncInfo').style.display = 'none';
+        document.getElementById('syncStatus').innerHTML = '';
+        localStorage.removeItem('campaignUrl');
+        localStorage.removeItem('autoSyncEnabled');
+        localStorage.removeItem('lastSyncTime');
+        broadcast('clearUrl', {});
+        showToast('Campaign URL cleared', 'info');
+    }
+
+    function toggleAutoSync() {
+        const url = (document.getElementById('campaignUrl').value || '').trim();
+        if (!url) { showToast('Enter a campaign URL first', 'error'); document.getElementById('autoSyncToggle').checked = false; return; }
+        autoSyncEnabled = document.getElementById('autoSyncToggle').checked;
+        if (autoSyncEnabled) {
+            syncFromCampaign(true);
+            autoSyncInterval = setInterval(() => syncFromCampaign(true), 60000);
+        } else {
+            if (autoSyncInterval) { clearInterval(autoSyncInterval); autoSyncInterval = null; }
+        }
+        localStorage.setItem('autoSyncEnabled', autoSyncEnabled);
+    }
+
+    function setSyncStatus(s, msg) {
+        const el = document.getElementById('syncStatus');
+        if (s === 'syncing') {
+            el.innerHTML = '<span class="sync-badge syncing"><div class="spinner"></div> Syncing…</span>';
+        } else if (s === 'success') {
+            lastSyncTime = new Date();
+            localStorage.setItem('lastSyncTime', lastSyncTime.toISOString());
+            el.innerHTML = '<span class="sync-badge success">&#x2713; Synced</span>';
+            updateLastSyncDisplay();
+            setTimeout(() => el.innerHTML = '', 4000);
+        } else if (s === 'error') {
+            el.innerHTML = '<span class="sync-badge error">&#x2717; ' + (msg || 'Failed') + '</span>';
+            setTimeout(() => el.innerHTML = '', 5000);
+        }
+    }
+    function updateLastSyncDisplay() {
+        if (!lastSyncTime) return;
+        const el = document.getElementById('lastSyncInfo');
+        const diff = Math.floor((Date.now() - lastSyncTime) / 60000);
+        el.textContent = 'Last synced: ' + (diff < 1 ? 'just now' : diff + ' min ago');
+        el.style.display = 'block';
+    }
+
+    function extractHHRDAmount(html) {
+        const jsonPats = [/"totalRaisedAmount"\s*:\s*([\d.]+)/,/"raisedAmount"\s*:\s*([\d.]+)/,/"raised_amount"\s*:\s*([\d.]+)/,/"amountRaised"\s*:\s*([\d.]+)/,/"total_raised"\s*:\s*([\d.]+)/,/"currentAmount"\s*:\s*([\d.]+)/];
+        for (const p of jsonPats) { const m = html.match(p); if (m) { const a = parseFloat(m[1]); if (!isNaN(a) && a >= 0) return a; } }
+        try {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const sels = ['.donation-amount','.raised-amount','.current-amount','.amount-raised','.total-raised','#raised-amount'];
+            for (const s of sels) { const el = doc.querySelector(s); if (el) { const a = parseAmt(el.textContent); if (a > 0) return a; } }
+            for (const el of doc.querySelectorAll('*')) {
+                const t = el.textContent;
+                if (t && t.includes('raised') && t.includes('$')) {
+                    const m = t.match(/\$([0-9,]+\.?[0-9]*)\s*raised/i);
+                    if (m) { const a = parseFloat(m[1].replace(/,/g,'')); if (!isNaN(a) && a > 0) return a; }
+                }
+            }
+            const matches = (doc.body ? doc.body.textContent : html).match(/\$[\d,]+(?:\.\d{2})?/g);
+            if (matches) {
+                const amts = matches.map(m => parseAmt(m)).filter(a => a > 0 && a < 10000000).sort((a,b) => b-a);
+                if (amts.length) return amts[0];
+            }
+        } catch(e) {}
+        return null;
+    }
+    function parseAmt(t) { if (!t) return null; const n = parseFloat(t.replace(/[^0-9.]/g,'')); return isNaN(n) ? null : n; }
+
+    // ── QR CONFIG ─────────────────────────────────────────
+    let qrDebounce = null;
+    function previewQR() {
+        clearTimeout(qrDebounce);
+        qrDebounce = setTimeout(() => {
+            const url = document.getElementById('qrUrlInput').value.trim()
+                || localStorage.getItem('campaignUrl') || '';
+            QRGen.render(document.getElementById('qrPreviewCanvas'), url);
+        }, 400);
+    }
+    function saveQRConfig() { /* label saved on apply */ }
+    function applyQRConfig() {
+        const urlField = document.getElementById('qrUrlInput').value.trim();
+        const campaignUrl = localStorage.getItem('campaignUrl') || '';
+        const finalUrl = urlField || campaignUrl;
+        if (!finalUrl) { showToast('Enter a URL to generate a QR code', 'error'); return; }
+        if (urlField) localStorage.setItem('campaignUrl', finalUrl);
+        const label = document.getElementById('qrLabelInput').value.trim() || 'Scan to Donate';
+        localStorage.setItem('qrLabel', label);
+        localStorage.setItem('displayQRVisible', true);
+        broadcast('qr', { url: finalUrl, label });
+        QRGen.render(document.getElementById('qrPreviewCanvas'), finalUrl);
+        const st = document.getElementById('qrStatus');
+        st.textContent = 'QR active — visible on display';
+        st.className = 'qr-status active';
+        showToast('QR code saved and active on display', 'success');
+    }
+    function clearQRConfig() {
+        document.getElementById('qrUrlInput').value = '';
+        localStorage.setItem('displayQRVisible', false);
+        broadcast('clearUrl', {});
+        QRGen.render(document.getElementById('qrPreviewCanvas'), '');
+        const st = document.getElementById('qrStatus');
+        st.textContent = 'No QR configured';
+        st.className = 'qr-status inactive';
+        showToast('QR code cleared', 'info');
+    }
+
+    // ── PANELS ────────────────────────────────────────────
+    function togglePanel(side) {
+        const on = document.getElementById(side + 'PanelToggle').checked;
+        document.getElementById(side + 'PanelItems').classList.toggle('active', on);
+        savePanelData(side);
+    }
+    function addPanelItem(side) {
+        const n = ++panelItemCount[side];
+        const html = `<div class="panel-item-row" data-item="${n}">
+            <input type="text" placeholder="Label" class="item-label" oninput="savePanelData('${side}')">
+            <input type="text" placeholder="Value" class="item-value" oninput="savePanelData('${side}')">
+            <button class="btn btn-danger btn-sm" onclick="removePanelItem('${side}',${n})">&#x00D7;</button>
+        </div>`;
+        document.getElementById(side + 'PanelContent').insertAdjacentHTML('beforeend', html);
+    }
+    function removePanelItem(side, id) {
+        const el = document.querySelector('#' + side + 'PanelContent [data-item="' + id + '"]');
+        if (el) { el.remove(); savePanelData(side); }
+    }
+    function savePanelData(side) {
+        const active = document.getElementById(side + 'PanelToggle').checked;
+        const title = document.getElementById(side + 'PanelTitle').value;
+        const items = [];
+        document.querySelectorAll('#' + side + 'PanelContent .panel-item-row').forEach(row => {
+            const l = row.querySelector('.item-label').value;
+            const v = row.querySelector('.item-value').value;
+            if (l || v) items.push({ label: l, value: v });
+        });
+        localStorage.setItem(side + 'Panel', JSON.stringify({ active, title, items }));
+        broadcast('panels', {});
+    }
+    function loadPanelData() {
+        ['left','right'].forEach(side => {
+            const raw = localStorage.getItem(side + 'Panel');
+            if (!raw) return;
+            try {
+                const d = JSON.parse(raw);
+                document.getElementById(side + 'PanelToggle').checked = !!d.active;
+                document.getElementById(side + 'PanelTitle').value = d.title || '';
+                if (d.active) document.getElementById(side + 'PanelItems').classList.add('active');
+                (d.items || []).forEach(() => {
+                    addPanelItem(side);
+                });
+                const rows = document.querySelectorAll('#' + side + 'PanelContent .panel-item-row');
+                (d.items || []).forEach((item, i) => {
+                    if (rows[i]) {
+                        rows[i].querySelector('.item-label').value = item.label || '';
+                        rows[i].querySelector('.item-value').value = item.value || '';
+                    }
+                });
+            } catch(e) {}
+        });
+    }
+
+    // ── CUSTOMIZATION ─────────────────────────────────────
+    function updateSlider(type) {
+        const s = document.getElementById(type + 'Slider');
+        document.getElementById(type + 'Value').textContent = s.value + 'px';
+    }
+    function syncColorPickers() {
+        ['background','fill','title'].forEach(name => {
+            const picker = document.getElementById(name + 'ColorPicker');
+            const hex = document.getElementById(name + 'ColorHex');
+            picker.addEventListener('input', () => hex.value = picker.value);
+            hex.addEventListener('input', () => { if (/^#[0-9A-F]{6}$/i.test(hex.value)) picker.value = hex.value; });
+        });
+    }
+    function applyCustomization() {
+        const cx = {
+            backgroundColor: document.getElementById('backgroundColorPicker').value,
+            fillColor: document.getElementById('fillColorPicker').value,
+            titleColor: document.getElementById('titleColorPicker').value,
+            titleFont: document.getElementById('titleFontSelect').value,
+            titleSize: document.getElementById('titleSizeSlider').value,
+            titleDistance: document.getElementById('titleDistanceSlider').value
+        };
+        localStorage.setItem('thermometerCustomization', JSON.stringify(cx));
+        broadcast('customization', cx);
+        showToast('Appearance applied to display', 'success');
+    }
+    function loadCustomization() {
+        const raw = localStorage.getItem('thermometerCustomization');
+        if (!raw) return;
+        try {
+            const cx = JSON.parse(raw);
+            const set = (id, val) => { if (val) document.getElementById(id).value = val; };
+            set('backgroundColorPicker', cx.backgroundColor); set('backgroundColorHex', cx.backgroundColor);
+            set('fillColorPicker', cx.fillColor);             set('fillColorHex', cx.fillColor);
+            set('titleColorPicker', cx.titleColor);           set('titleColorHex', cx.titleColor);
+            set('titleFontSelect', cx.titleFont);
+            if (cx.titleSize) { document.getElementById('titleSizeSlider').value = cx.titleSize; document.getElementById('titleSizeValue').textContent = cx.titleSize + 'px'; }
+            if (cx.titleDistance) { document.getElementById('titleDistanceSlider').value = cx.titleDistance; document.getElementById('titleDistanceValue').textContent = cx.titleDistance + 'px'; }
+        } catch(e) {}
+    }
+    const PRESETS = {
+        navy:      { backgroundColor:'#0B1628', fillColor:'#4FC3F7', titleColor:'#F5A623', titleFont:'Dancing Script', titleSize:46, titleDistance:90 },
+        modern:    { backgroundColor:'#0F172A', fillColor:'#38BDF8', titleColor:'#E2E8F0', titleFont:'Inter', titleSize:42, titleDistance:80 },
+        forest:    { backgroundColor:'#0D1F16', fillColor:'#34D399', titleColor:'#A7F3D0', titleFont:'Playfair Display', titleSize:44, titleDistance:85 },
+        classic:   { backgroundColor:'#1E293B', fillColor:'#60A5FA', titleColor:'#F59E0B', titleFont:'Georgia', titleSize:42, titleDistance:80 },
+        corporate: { backgroundColor:'#1E1E2E', fillColor:'#818CF8', titleColor:'#E2E8F0', titleFont:'Inter', titleSize:40, titleDistance:80 },
+        warm:      { backgroundColor:'#1C0A00', fillColor:'#FB923C', titleColor:'#FDE68A', titleFont:'Dancing Script', titleSize:48, titleDistance:90 },
+        reset:     { backgroundColor:'#0B1628', fillColor:'#4FC3F7', titleColor:'#F5A623', titleFont:'Dancing Script', titleSize:46, titleDistance:90 }
+    };
+    function applyPreset(name) {
+        const p = PRESETS[name]; if (!p) return;
+        document.getElementById('backgroundColorPicker').value = p.backgroundColor;
+        document.getElementById('backgroundColorHex').value    = p.backgroundColor;
+        document.getElementById('fillColorPicker').value       = p.fillColor;
+        document.getElementById('fillColorHex').value          = p.fillColor;
+        document.getElementById('titleColorPicker').value      = p.titleColor;
+        document.getElementById('titleColorHex').value         = p.titleColor;
+        document.getElementById('titleFontSelect').value       = p.titleFont;
+        document.getElementById('titleSizeSlider').value       = p.titleSize;
+        document.getElementById('titleSizeValue').textContent  = p.titleSize + 'px';
+        document.getElementById('titleDistanceSlider').value   = p.titleDistance;
+        document.getElementById('titleDistanceValue').textContent = p.titleDistance + 'px';
+        applyCustomization();
+    }
+
+    // ── DATA MANAGEMENT ───────────────────────────────────
+    function exportData() {
+        if (!transactions.length) { showToast('No transactions to export', 'error'); return; }
+        let csv = 'Type,Amount,Timestamp\n';
+        transactions.forEach(t => { csv += `${t.type},${t.amount},"${new Date(t.timestamp).toLocaleString()}"\n`; });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'fundraiser-' + new Date().toISOString().split('T')[0] + '.csv';
+        a.click();
+        showToast('CSV exported', 'success');
+    }
+    function exportSettings() {
+        const s = {
+            version: '2.0',
+            exportDate: new Date().toISOString(),
+            fundraiserTitle: localStorage.getItem('fundraiserTitle'),
+            fundraiserGoal: localStorage.getItem('fundraiserGoal'),
+            campaignUrl: localStorage.getItem('campaignUrl'),
+            thermometerCustomization: localStorage.getItem('thermometerCustomization'),
+            leftPanel: localStorage.getItem('leftPanel'),
+            rightPanel: localStorage.getItem('rightPanel'),
+            categoryTotals: {},
+            transactions
+        };
+        categories.forEach(c => s.categoryTotals[c] = localStorage.getItem(c + 'Total'));
+        const blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'fundraiser-backup-' + new Date().toISOString().split('T')[0] + '.json';
+        a.click();
+        showToast('Backup exported', 'success');
+    }
+    function importSettings() {
+        const input = document.createElement('input');
+        input.type = 'file'; input.accept = '.json';
+        input.onchange = function(e) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    const s = JSON.parse(ev.target.result);
+                    if (!s.version) throw new Error('Invalid file');
+                    if (s.fundraiserTitle) localStorage.setItem('fundraiserTitle', s.fundraiserTitle);
+                    if (s.fundraiserGoal)  localStorage.setItem('fundraiserGoal', s.fundraiserGoal);
+                    if (s.campaignUrl)     localStorage.setItem('campaignUrl', s.campaignUrl);
+                    if (s.thermometerCustomization) localStorage.setItem('thermometerCustomization', s.thermometerCustomization);
+                    if (s.leftPanel)  localStorage.setItem('leftPanel', s.leftPanel);
+                    if (s.rightPanel) localStorage.setItem('rightPanel', s.rightPanel);
+                    if (s.categoryTotals) categories.forEach(c => { if (s.categoryTotals[c]) localStorage.setItem(c + 'Total', s.categoryTotals[c]); });
+                    if (s.transactions) { transactions = s.transactions; saveTransactions(); }
+                    showToast('Backup restored! Reloading…', 'success');
+                    setTimeout(() => location.reload(), 1200);
+                } catch(err) { showToast('Error: ' + err.message, 'error'); }
+            };
+            reader.readAsText(e.target.files[0]);
+        };
+        input.click();
+    }
+    function clearAllData() {
+        if (!confirm('Clear ALL data? This cannot be undone.')) return;
+        localStorage.clear();
+        transactions = [];
+        location.reload();
+    }
+    function resetMilestones() {
+        localStorage.removeItem('celebratedMilestones');
+        broadcast('resetMilestones', {});
+        showToast('Milestones reset — will celebrate again when crossed', 'success');
+    }
+
+    // ── INIT ─────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTransactions();
+
+        categories.forEach(cat => {
+            totals[cat] = parseFloat(localStorage.getItem(cat + 'Total')) || 0;
+            document.getElementById(cat + 'Total').textContent = formatCurrency(totals[cat]);
+
+            const input = document.getElementById(cat + 'Input');
+            const submit = () => {
+                const v = parseFloat(input.value);
+                if (!isNaN(v) && v !== 0) {
+                    addTransaction(cat, v);
+                    totals[cat] += v;
+                    document.getElementById(cat + 'Total').textContent = formatCurrency(totals[cat]);
+                    localStorage.setItem(cat + 'Total', totals[cat]);
+                    input.value = '';
+                    const total = Object.values(totals).reduce((a,b)=>a+b,0);
+                    localStorage.setItem('fundraiserTotal', total);
+                    updateHero();
+                    broadcast('donation', { total, category: cat, amount: v });
+                    showToast('+' + formatCurrency(v) + ' ' + cat, 'success');
+                }
+            };
+            input.addEventListener('change', submit);
+            input.addEventListener('keypress', e => { if (e.key === 'Enter') submit(); });
+        });
+
+        updateHero();
+        loadPanelData();
+        loadCustomization();
+        syncColorPickers();
+
+        // Restore saved values
+        const t = localStorage.getItem('fundraiserTitle');
+        const g = localStorage.getItem('fundraiserGoal');
+        const u = localStorage.getItem('campaignUrl');
+        if (t) document.getElementById('titleInput').placeholder = 'Current: ' + t;
+        if (g) document.getElementById('goalInput').placeholder = 'Current: $' + parseFloat(g).toLocaleString();
+        if (u) {
+            document.getElementById('campaignUrl').value = u;
+            document.getElementById('clearUrlBtn').style.display = '';
+        }
+
+        // Restore auto-sync
+        const autoSaved = localStorage.getItem('autoSyncEnabled');
+        if (autoSaved === 'true' && u) {
+            document.getElementById('autoSyncToggle').checked = true;
+            autoSyncEnabled = true;
+            autoSyncInterval = setInterval(() => syncFromCampaign(true), 60000);
+        }
+
+        // Restore QR config
+        const qrUrl = localStorage.getItem('campaignUrl') || '';
+        if (qrUrl) {
+            QRGen.render(document.getElementById('qrPreviewCanvas'), qrUrl);
+            if (localStorage.getItem('displayQRVisible') === 'true') {
+                const st = document.getElementById('qrStatus');
+                st.textContent = 'QR active — visible on display';
+                st.className = 'qr-status active';
+            }
+        }
+
+        // Last sync time
+        const ls = localStorage.getItem('lastSyncTime');
+        if (ls) { lastSyncTime = new Date(ls); updateLastSyncDisplay(); }
+
+        setInterval(updateHero, 1500);
+        setInterval(updateLastSyncDisplay, 60000);
+    });
     </script>
 </body>
 </html>
