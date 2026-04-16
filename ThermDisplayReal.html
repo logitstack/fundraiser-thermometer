@@ -802,6 +802,8 @@
 
             // Labels track the wave level; clamped above the bulb area (≥118px)
             var labelBottom = Math.max(118, waveBtm - 10);
+            document.getElementById('percentage').style.bottom = labelBottom + 'px';
+            document.getElementById('amount').style.bottom = labelBottom + 'px';
 
             if (total > lastTotal && lastTotal > 0) { animateChange(); checkMilestones(pct); }
             lastTotal = total; lastPercentage = pct;
